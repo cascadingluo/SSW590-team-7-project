@@ -1,4 +1,3 @@
-// frontend/src/Chatbot.js
 import React, { useState } from 'react';
 
 const Chatbot = () => {
@@ -17,7 +16,7 @@ const Chatbot = () => {
     setInput("");
 
     try {
-      const response = await fetch('http://localhost:5000/api/chat', {
+      const response = await fetch('http://localhost:3000/api/chat', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -41,6 +40,28 @@ const Chatbot = () => {
         { role: 'bot', content: "Sorry, I encountered an error. Please try again." },
       ]);
     }
+  };
+
+  // Using browser's SpeechRecognition API for recognising voice input as well along with text. 
+  const handleVoiceInput = () => {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    const recognition = new SpeechRecognition();
+
+    recognition.onstart = () => {
+      console.log("Voice recognition activated. Try speaking into the microphone.");
+    };
+
+    recognition.onresult = (event) => {
+      const transcript = event.results[0][0].transcript;
+      setInput(transcript); // Set the transcribed text to input
+      sendMessage();
+    };
+
+    recognition.onerror = (event) => {
+      console.error("Error occurred in recognition: ", event.error);
+    };
+
+    recognition.start(); // Starts voice recognition
   };
 
   return (
@@ -78,6 +99,12 @@ const Chatbot = () => {
             >
               Send
             </button>
+            <button
+              onClick={handleVoiceInput}
+              className="p-2 ml-2 text-white bg-green-600 rounded-lg hover:bg-green-700 focus:outline-none"
+            >
+              🎤
+            </button>
           </div>
         </div>
       )}
@@ -86,3 +113,4 @@ const Chatbot = () => {
 };
 
 export default Chatbot;
+
