@@ -57,4 +57,39 @@ describe('Chatbot Component UI Tests', () => {
     fireEvent.click(sendButton);
   });
 
+  test('submitting a message clears the input field', () => {
+    render(<Chatbot />);
+
+    // Open the chat window
+    fireEvent.click(screen.getByText('Chat'));
+
+    const inputField = screen.getByPlaceholderText('Type a message...');
+    const sendButton = screen.getByText('Send');
+
+    // Change the input field value
+    fireEvent.change(inputField, { target: { value: 'Hello' } });
+
+    // Click the send button
+    fireEvent.click(sendButton);
+
+    // Verify the input field is cleared after submitting a message
+    expect(inputField.value).toBe('');
+  });
+  
+  test('send button is enabled when input has text', () => {
+    render(<Chatbot />);
+    
+    // Open the chat window
+    fireEvent.click(screen.getByText('Chat'));
+
+    const inputField = screen.getByPlaceholderText('Type a message...');
+    const sendButton = screen.getByText('Send');
+
+    // Change the input field value
+    fireEvent.change(inputField, { target: { value: 'Hello' } });
+
+    // Verify the send button is enabled when input is not empty
+    expect(sendButton).not.toBeDisabled();
+  });
+
 });
