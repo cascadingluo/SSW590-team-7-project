@@ -3,12 +3,14 @@ The repository of team 8's project for CS555, this team includes, Luo Xu, Annany
 log/track:
 
 - Sprint 1:
-  - interface, html and css is created for now, without intergrated with the backend yet.
-  - backend is currently funtional with a voice to text and text input. chat currently are able to give a simple response. show cases funtionalility in a bare interface.
-    
+  - Created a basic interface using HTML and CSS, not yet integrated with the backend.
+  - Developed a functional backend that supports both voice-to-text and text input.
+  - Implemented a simple chat response system to showcase basic functionality within a minimal interface.
+
 - Sprint 2:
-  - intergrating with the back and frontend, shows the basic functionalities developed in sprint 1 with the actual front end.
-  - further development of the backend, see jira for specific user stories.
+  - Intergrating the Backend and Frontend, shows the basic functionalities developed in sprint1 with the actual front end.
+  - Further development of the Backend with Voice output and better Voice Input Recognition, Finetuning the assistant and using the Q/A document for accurate responses.
+  - See Jira for specific user stories.
     
 - Sprint 3:
   - starting in 2 weeks
