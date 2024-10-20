@@ -9,7 +9,7 @@ the basic chatbot functions:
       
 if running the UI part, before intergration please pull from the UX/UI first.
 
-edit: sprint 1 inital unpdate intergation completed 10/20/2024. no need to worry about the above seperate branches anymore.
+edit: sprint 1 inital update. intergation completed 10/20/2024. no need to worry about the above message about seperate branches anymore.
 
 log/track:
 
