@@ -1,5 +1,14 @@
 The repository of team 8's project for CS555, this team includes, Luo Xu, Annanya Jain, Aya Salama, Spurthi Setty, Yanran Jia and Divya Prahlad from Stevens Institute of Technology.
 
+
+instructions to run:
+the basic chatbot functions:
+  - open two terminals
+    - in the frontend file run: npm run dev
+    - in the backend file run: node server.js
+      
+if running the UI part, before intergration please pull from the UX/UI first.
+
 log/track:
 
 - Sprint 1:
