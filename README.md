@@ -4,10 +4,11 @@ The repository of team 8's project for CS555, this team includes, Luo Xu, Annany
 instructions to run:
 the basic chatbot functions:
   - open two terminals
-    - in the frontend file run: npm run dev
-    - in the backend file run: node server.js
+    - in the frontend file run: flask --app front.py run
+    - in the backend file run: npm start
       
 if running the UI part, before intergration please pull from the UX/UI first.
+edit: sprint 1 inital unpdate intergation completed 10/20/2024. no need to worry about the above seperate branches anymore.
 
 log/track:
 
