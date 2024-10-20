@@ -1,13 +1,130 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
   <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Vite + React</title>
+    <meta charset="UTF-8">
+    <title>A.V.A Interface</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='A.V.A_styling.css') }}"> <!-- Path to CSS -->
   </head>
   <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
+    <div class="container">
+      <!-- Header Section -->
+      <header class="header">
+        <div class="AVAicon"></div>
+        <h1 class="welcomeMessage">Good Evening, &lt;user&gt;</h1>
+        <div class="header-icons">
+          <div class="language"></div>
+          <div class="setting"></div>
+        </div>
+      </header>
+
+      <!-- Sidebar -->
+      <aside class="sidebar">
+        <button class="talk-button">Click me if you want to talk instead!</button>
+      </aside>
+
+      <!-- Chat Window -->
+      <main class="chat-window">
+        <!-- User messages will be appended here dynamically -->
+      </main>
+
+      <!-- User Input Section -->
+      <div class="user-message">
+        <input type="text" placeholder="Type your message..." class="input-box">
+        <button class="enter-button">Enter</button>
+      </div>
+    </div>
+
+    <script>
+      let isListening = false;
+      const inputBox = document.querySelector('.input-box');
+
+      // Function to handle sending the message
+      function sendMessage() {
+        const userInput = inputBox.value;        
+
+        if (userInput.trim() === "") return; // Prevent empty messages
+
+        // Append user message to the chat
+        const userMessage = document.createElement('div');
+        userMessage.className = 'message right';
+        userMessage.innerHTML = `<div class="bubble">${userInput}</div>`;
+        document.querySelector('.chat-window').prepend(userMessage); // Adds to the top
+
+        // Clear the input box after sending the message
+        inputBox.value = "";
+
+        // Simulate sending the message to the backend
+        fetch('http://localhost:3000/api/chat', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ input: userInput }),
+        })
+        .then(response => response.json())
+        .then(data => {
+          // Append bot response to the chat
+          const botMessage = document.createElement('div');
+          botMessage.className = 'message left';
+          botMessage.innerHTML = `
+            <div class="profile-pic"></div> <!-- Placeholder for AVA's profile -->
+            <div class="bubble">${data.reply}</div>`;
+          document.querySelector('.chat-window').prepend(botMessage); // Adds to the top
+        })
+        .catch((error) => {
+          console.error('Error:', error);
+        });
+      }
+
+      document.querySelector('.enter-button').addEventListener('click', function() {
+        if (!isListening) sendMessage(); // Only allow sending if not listening to speech
+      });
+
+      // Handle typing and pressing Enter
+      document.querySelector('.input-box').addEventListener('keydown', function(event) {
+        if (event.key === 'Enter' && !isListening) {
+          event.preventDefault(); // Prevent form submission
+          sendMessage();
+        }
+      });
+
+      // Speech-to-text for the talk button
+      document.querySelector('.talk-button').addEventListener('click', function() {
+        const recognition = new webkitSpeechRecognition(); // WebkitSpeechRecognition for Chrome
+        recognition.lang = 'en-US';
+        recognition.continuous = false;
+        recognition.interimResults = false;
+
+        if (inputBox.value.trim() !== "") {
+          inputBox.value = "";
+          inputBox.placeholder = "Message cleared. I am listening to your input instead...";
+        } else {
+          inputBox.placeholder = "I am listening...";
+        }
+
+        isListening = true; // Set listening state to true
+        inputBox.disabled = true;
+  
+        recognition.onresult = function(event) {
+          const transcript = event.results[0][0].transcript;
+          inputBox.value = transcript; // Fill the input box with speech text
+          sendMessage(); // Automatically send the message after speech recognition
+        };
+
+        recognition.onerror = function(event) {
+          console.error('Speech recognition error: ', event.error);
+        };
+
+        recognition.onend = function() {
+          // Reset listening state
+          isListening = false;
+          document.querySelector('.input-box').placeholder = "Type your message..."; // Reset placeholder
+          document.querySelector('.input-box').disabled = false; // Re-enable typing
+        };
+
+        recognition.start(); // Start listening for speech
+      });
+    </script>
   </body>
 </html>
+
