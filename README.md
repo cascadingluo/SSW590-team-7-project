@@ -8,6 +8,7 @@ the basic chatbot functions:
     - in the backend file run: npm start
       
 if running the UI part, before intergration please pull from the UX/UI first.
+
 edit: sprint 1 inital unpdate intergation completed 10/20/2024. no need to worry about the above seperate branches anymore.
 
 log/track:
