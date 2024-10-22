@@ -37,7 +37,34 @@
     <script>
       let isListening = false;
       const inputBox = document.querySelector('.input-box');
+      
+      // Function to add initial messages to the chat window
+      function addMessage(message, isBot = true) {
+        const messagesDiv = document.querySelector('.chat-window');
+        const messageElement = document.createElement('div');
+        messageElement.className = isBot ? 'message left' : 'message right';
+        
+        messageElement.innerHTML = isBot
+          ? `<div class="profile-pic"></div> <!-- Placeholder for AVA's profile -->
+             <div class="bubble">${message}</div>`
+          : `<div class="bubble">${message}</div>`;
+        
+        messagesDiv.prepend(messageElement); // Adds to the top
+        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+      }
 
+      // Fetch the initial chatbot prompt
+      document.addEventListener("DOMContentLoaded", () => {
+      fetch('http://localhost:3000/api/initChat', {
+              method: 'POST',
+          })
+          .then(response => response.json())
+          .then(data => {
+              addMessage(data.reply);
+          })
+          .catch(error => console.error('Error initializing chat:', error));
+      });
+      
       // Function to handle sending the message
       function sendMessage() {
         const userInput = inputBox.value;        
