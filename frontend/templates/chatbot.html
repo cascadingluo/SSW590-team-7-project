@@ -3,17 +3,23 @@
   <head>
     <meta charset="UTF-8">
     <title>A.V.A Interface</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='A.V.A_styling.css') }}"> <!-- Path to CSS -->
+    <link rel="stylesheet" href="/static/A.V.A_styling.css"> <!-- Path to CSS -->
   </head>
   <body>
     <div class="container">
       <!-- Header Section -->
       <header class="header">
-        <div class="AVAicon"></div>
-        <h1 class="welcomeMessage">Good Evening, &lt;user&gt;</h1>
-        <div class="header-icons">
-          <div class="language"></div>
-          <div class="setting"></div>
+        <div class="header-left">
+          <button class="header-btn">
+            <img src="/static/ava_logo.png" alt="AVA logo" class="ava_logo">
+          </button>
+        </div>
+        <div class="header-center">
+          <h2>Welcome to A.V.A, your personal AI health assistant...</h2>
+        </div>
+        <div class="header-right">
+          <button class="header-btn">languages</button>
+          <button class="header-btn">settings</button>
         </div>
       </header>
 
@@ -154,4 +160,3 @@
     </script>
   </body>
 </html>
-
