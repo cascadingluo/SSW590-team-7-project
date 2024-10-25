@@ -3,13 +3,43 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const { GoogleGenerativeAI } = require('@google/generative-ai');
+const path = require('path'); //manages file paths
 
 const app = express();
 app.use(cors());
 app.use(express.json());
+app.use(express.urlencoded({ extended: true })); //to handle data from login
 
 const genAI = new GoogleGenerativeAI(process.env.API_KEY);
 const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+
+app.use('/static', express.static(path.join(__dirname, '../frontend/static')));
+
+//the page you see when running
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, '../frontend/templates/login.html')); // Default to login page
+});
+
+//serve login page
+// app.get('/login', (req, res) => {
+//   res.sendFile(path.join(__dirname, 'templates', 'login.html')); //path for login file
+// });
+
+//serve the chatbot page
+app.get('/chatbot', (req, res) => {
+  res.sendFile(path.join(__dirname, '../frontend/templates/chatbot.html')); //path for chatbot file
+});
+
+app.post('/login', (req, res) => {
+  const { username, password } = req.body;
+
+  // mock authentication for testing purposes
+  if (username === 'admin' && password === 'password') {
+    res.redirect('/chatbot'); // Redirect to chatbot page after successful login
+  } else {
+    res.status(401).send('Invalid credentials. Please try again.');
+  }
+});
 
 const initialPrompts = ["Hey there! How are you feeling today?","Hi! I'm here for you. What’s on your mind?","Hello! How’s everything going for you today?","Hey! I’m ready to listen. How are you feeling?",
 "Hi there! How are you doing, both physically and mentally?","Hello! What’s something you’d like to talk about today?","Hi! How’s your day been so far?","Hey! It’s good to see you. How are you holding up?",
@@ -26,6 +56,7 @@ const initialPrompts = ["Hey there! How are you feeling today?","Hi! I'm here fo
 "Hi there! How can I help support you today?","Hey! What’s something you’ve been feeling lately?"
 ];
 
+//cahtbot api init
 app.post('/api/initChat', async (req, res) => {
   const initialPrompt = initialPrompts[Math.floor(Math.random() * initialPrompts.length)];
   
@@ -45,7 +76,7 @@ app.post('/api/chat', async (req, res) => {
   const prompt = `You are a compassionate and knowledgeable mental health assistant. Your role is to listen to the user’s emotional concerns and 
     provide supportive advice. Act as a friend or caretaker to the user. Use simple, everyday language to keep things easy to understand. Make 
     sure your tone is conversational, and avoid technical terms or complex phrases. At the end ask a specific follow-up question related to their 
-    health or well-being. Keep your questions friendly and focused on keeping the conversation going in a positive, engaging way. Provide the best 
+    health or well-being. Keep your ques;cdtions friendly and focused on keeping the conversation going in a positive, engaging way. Provide the best 
     course of action based on this input: ${userInput} Respond in 3-4 sentences.`;
 
   try {
