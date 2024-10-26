@@ -5,10 +5,7 @@ the basic chatbot functions:
   - open two terminals
     - in the frontend file run: flask --app front.py run
     - in the backend file run: npm start
-      
-if running the UI part, before intergration please pull from the UX/UI first.
 
-edit: sprint 1 inital update. intergation completed 10/20/2024. no need to worry about the above message about seperate branches anymore.
 
 log/track:
 
