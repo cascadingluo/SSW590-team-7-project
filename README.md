@@ -5,11 +5,6 @@ the basic chatbot functions:
   - open two terminals
     - in the frontend file run: flask --app front.py run
     - in the backend file run: npm start
-    - go to http://127.0.0.1:3000 for log in page
-      - the mock username: admin
-      - the mock password: password
-      - once the correct password and username is given, it will redirect you directly to the chatbot, or send you to error
-    - go to http://127.0.0.1:5000 for the chatbot
       
 if running the UI part, before intergration please pull from the UX/UI first.
 
