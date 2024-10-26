@@ -15,7 +15,11 @@ users_collection = db.users
 def chatbot():
     return render_template('chatbot.html')
 
-@app.route('/', methods=['GET', 'POST'])
+@app.route('/')
+def index():
+    return redirect(url_for('login'))
+
+@app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
         username = request.form['username']
@@ -26,7 +30,7 @@ def login():
         if user and check_password_hash(user["password"], password):
             session['user_id'] = str(user["_id"])
             flash("Login successful!")
-            return render_template('chatbot.html')
+            return redirect(url_for('chatbot'))
         else:
             flash("Invalid username or password")
             return render_template('login.html')
@@ -48,7 +52,7 @@ def signup():
                 return redirect(url_for('signup'))
             new_user = {"username": username, "password": generate_password_hash(password1)}
             users_collection.insert_one(new_user)
-            return render_template('chatbot.html')
+            return redirect(url_for('chatbot'))
         
         else:
             flash("Username is taken.")
@@ -60,7 +64,7 @@ def signup():
 def logout():
     session.pop('user_id', None)
     flash("Logged out successfully")
-    return redirect(url_for('login'))
+    return render_template('login.html')
 
 if __name__ == '__main__':
     app.run(debug=True, port=3000)

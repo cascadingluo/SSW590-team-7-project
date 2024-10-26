@@ -3,7 +3,7 @@ The repository of team 8's project for CS555, this team includes, Luo Xu, Annany
 ***important! instructions to run:***
 the basic chatbot functions:
   - open two terminals
-    - in the frontend file run: flask --app front.py run
+    - in the frontend file run: python3 front.py
     - in the backend file run: npm start
 
 make sure you have the packages below when running:
