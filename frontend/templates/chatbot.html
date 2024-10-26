@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>A.V.A Interface</title>
+    <link rel="stylesheet" href="/static/A.V.A_styling.css"> <!-- Path to CSS -->
+  </head>
+  <body>
+    <div class="container">
+      <!-- Header Section -->
+      <header class="header">
+        <div class="header-left">
+          <button class="header-btn">
+            <img src="/static/ava_logo.png" alt="AVA logo" class="ava_logo">
+          </button>
+        </div>
+        <div class="header-center">
+          <h2>Welcome to A.V.A, your personal AI health assistant...</h2>
+        </div>
+        <div class="header-right">
+          <button class="header-btn">languages</button>
+          <button class="header-btn">settings</button>
+        </div>
+      </header>
+
+      <!-- Sidebar -->
+      <aside class="sidebar">
+        <button class="talk-button">Click me if you want to talk instead!</button>
+      </aside>
+
+      <!-- Chat Window -->
+      <main class="chat-window">
+        <!-- User messages will be appended here dynamically -->
+      </main>
+
+      <!-- User Input Section -->
+      <div class="user-message">
+        <input type="text" placeholder="Type your message..." class="input-box">
+        <button class="enter-button">Enter</button>
+      </div>
+    </div>
+
+    <script>
+      let isListening = false;
+      const inputBox = document.querySelector('.input-box');
+      
+      // Function to add initial messages to the chat window
+      function addMessage(message, isBot = true) {
+        const messagesDiv = document.querySelector('.chat-window');
+        const messageElement = document.createElement('div');
+        messageElement.className = isBot ? 'message left' : 'message right';
+        
+        messageElement.innerHTML = isBot
+          ? `<div class="profile-pic"></div> <!-- Placeholder for AVA's profile -->
+             <div class="bubble">${message}</div>`
+          : `<div class="bubble">${message}</div>`;
+        
+        messagesDiv.prepend(messageElement); // Adds to the top
+        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+      }
+
+      // Fetch the initial chatbot prompt
+      document.addEventListener("DOMContentLoaded", () => {
+      fetch('http://localhost:3000/api/initChat', {
+              method: 'POST',
+          })
+          .then(response => response.json())
+          .then(data => {
+              addMessage(data.reply);
+          })
+          .catch(error => console.error('Error initializing chat:', error));
+      });
+      
+      // Function to handle sending the message
+      function sendMessage() {
+        const userInput = inputBox.value;        
+
+        if (userInput.trim() === "") return; // Prevent empty messages
+
+        // Append user message to the chat
+        const userMessage = document.createElement('div');
+        userMessage.className = 'message right';
+        userMessage.innerHTML = `<div class="bubble">${userInput}</div>`;
+        document.querySelector('.chat-window').prepend(userMessage); // Adds to the top
+
+        // Clear the input box after sending the message
+        inputBox.value = "";
+
+        // Simulate sending the message to the backend
+        fetch('http://localhost:3000/api/chat', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ input: userInput }),
+        })
+        .then(response => response.json())
+        .then(data => {
+          // Append bot response to the chat
+          const botMessage = document.createElement('div');
+          botMessage.className = 'message left';
+          botMessage.innerHTML = `
+            <div class="profile-pic"></div> <!-- Placeholder for AVA's profile -->
+            <div class="bubble">${data.reply}</div>`;
+          document.querySelector('.chat-window').prepend(botMessage); // Adds to the top
+        })
+        .catch((error) => {
+          console.error('Error:', error);
+        });
+      }
+
+      document.querySelector('.enter-button').addEventListener('click', function() {
+        if (!isListening) sendMessage(); // Only allow sending if not listening to speech
+      });
+
+      // Handle typing and pressing Enter
+      document.querySelector('.input-box').addEventListener('keydown', function(event) {
+        if (event.key === 'Enter' && !isListening) {
+          event.preventDefault(); // Prevent form submission
+          sendMessage();
+        }
+      });
+
+      // Speech-to-text for the talk button
+      document.querySelector('.talk-button').addEventListener('click', function() {
+        const recognition = new webkitSpeechRecognition(); // WebkitSpeechRecognition for Chrome
+        recognition.lang = 'en-US';
+        recognition.continuous = false;
+        recognition.interimResults = false;
+
+        if (inputBox.value.trim() !== "") {
+          inputBox.value = "";
+          inputBox.placeholder = "Message cleared. I am listening to your input instead...";
+        } else {
+          inputBox.placeholder = "I am listening...";
+        }
+
+        isListening = true; // Set listening state to true
+        inputBox.disabled = true;
+  
+        recognition.onresult = function(event) {
+          const transcript = event.results[0][0].transcript;
+          inputBox.value = transcript; // Fill the input box with speech text
+          sendMessage(); // Automatically send the message after speech recognition
+        };
+
+        recognition.onerror = function(event) {
+          console.error('Speech recognition error: ', event.error);
+        };
+
+        recognition.onend = function() {
+          // Reset listening state
+          isListening = false;
+          document.querySelector('.input-box').placeholder = "Type your message..."; // Reset placeholder
+          document.querySelector('.input-box').disabled = false; // Re-enable typing
+        };
+
+        recognition.start(); // Start listening for speech
+      });
+    </script>
+  </body>
+</html>

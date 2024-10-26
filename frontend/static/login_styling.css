@@ -1,0 +1,149 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Courier New", monospace;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 100vh;
+    background-color: #f4f9ff;
+    justify-content: center;
+}
+
+/* Header Section */
+header {
+    width: 100%;
+    background-color: #b3e0ff; 
+    padding: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    position: fixed; 
+    top: 0;
+    left: 0;
+    z-index: 1000; 
+}
+
+.ava_logo {
+    width: 30px;  /* Adjust width as needed */
+    height: auto; /* Maintain aspect ratio */
+    display: inline-block; /* Ensure it stays inside the button */
+    vertical-align: middle;
+}
+
+.header-right {
+    display: flex;
+    align-items: center;
+}
+
+.header-btn {
+    background-color: #66a3ff; 
+    border: none;
+    padding: 10px 20px;
+    margin: 0 5px;
+    font-size: 16px;
+    color: white;
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+.header-center {
+    text-align: center;
+    font-size: 24px;
+}
+
+header h2 {
+    font-size: 24px;
+    font-weight: bold;
+    color: #000;
+}
+
+/* Floating Window */
+.form-container {
+    background-color: #cce7ff;
+    padding: 40px;
+    border-radius: 15px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    max-width: 40%;
+    width: 100%;
+    text-align: center;
+    z-index: 1;
+    position: relative;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px; /* Add space between fields */
+}
+
+.form-group {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    margin-bottom: 20px;
+}
+
+h1 {
+    font-size: 30px;
+    margin-bottom: 20px;
+    font-weight: bold;
+    text-align: center;
+}
+
+label {
+    font-size: 18px;
+    /* max-width: 350px; */
+    /* margin: 10px 0 5px; */
+    /* width: 320px; */
+    text-align: right; 
+    margin-right: 20px;
+}
+
+input {
+    width: 70%;
+    padding: 10px;
+    /* margin-bottom: 20px; */
+    border: 1px solid #999;
+    border-radius: 5px;
+    font-size: 16px;
+    border-radius: 5px;
+    /* flex: 1; */
+}
+
+input::placeholder {
+    color: #999;
+}
+
+button {
+    background-color: #66a3ff;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 18px;
+    margin-top: 10px;
+}
+
+button:hover {
+    background-color: #558acc;
+}
+
+a {
+    display: block;
+    margin-top: 10px;
+    color: #0066cc;
+    font-size: 14px;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
