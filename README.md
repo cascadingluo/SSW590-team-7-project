@@ -6,6 +6,11 @@ the basic chatbot functions:
     - in the frontend file run: flask --app front.py run
     - in the backend file run: npm start
 
+make sure you have the packages below when running:
+- pip install Flask
+- pip install pymongo
+- npm i mongoose
+
 
 log/track:
 
