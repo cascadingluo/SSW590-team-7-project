@@ -6,7 +6,7 @@ app = Flask(__name__)
 app.secret_key = "supersecretkey"
 
 # MongoDB Connection
-client = MongoClient("mongodb+srv://asalama0204:ye16MiS52yKp1sAC@cluster0.zli9h.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")
+client = MongoClient('mongodb+srv://asalama0204:ye16MiS52yKp1sAC@cluster0.zli9h.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0&ssl=true')
 db = client.test 
 
 users_collection = db.users 
