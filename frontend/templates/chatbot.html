@@ -36,8 +36,10 @@
 
       <!-- User Input Section -->
       <div class="user-message">
-        <input type="text" placeholder="Type your message..." class="input-box">
-        <button class="enter-button">Enter</button>
+        <!-- <button class="enter-button">Enter</button> -->
+          <input id="input" type="text" name="input" placeholder="Type your message..." class="input-box">
+          <button type="submit" class="enter-button">Enter</button>
+
       </div>
     </div>
 
@@ -73,8 +75,12 @@
       });
       
       // Function to handle sending the message
-      function sendMessage() {
-        const userInput = inputBox.value;        
+      async function sendMessage() {
+        const userId = sessionStorage.getItem('user_id'); 
+        const userInput = inputBox.value;  
+
+        console.log(sessionStorage);
+
 
         if (userInput.trim() === "") return; // Prevent empty messages
 
@@ -108,6 +114,18 @@
         .catch((error) => {
           console.error('Error:', error);
         });
+
+        fetch('/save_history', {
+            method: 'POST', 
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ input: userInput }) // If sending data
+          })
+          .catch(error => {
+            // Handle errors
+            console.error('Error:', error);
+          });
       }
 
       document.querySelector('.enter-button').addEventListener('click', function() {

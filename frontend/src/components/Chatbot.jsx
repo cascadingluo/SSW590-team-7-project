@@ -4,7 +4,8 @@ const Chatbot = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
-  const userId = localStorage.getItem('userId');
+  const userId = '<%=Session["user_id"]%>';
+
   const handleInputChange = (e) => {
     setInput(e.target.value);
   };

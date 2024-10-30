@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for, session, flash
 from pymongo import MongoClient
 from werkzeug.security import generate_password_hash, check_password_hash
+from bson import ObjectId
 
 app = Flask(__name__)
 app.secret_key = "supersecretkey"
@@ -19,6 +20,26 @@ def chatbot():
 def index():
     return redirect(url_for('login'))
 
+@app.route('/save_history', methods=['POST'])
+def save_history():
+    if request.method == 'POST':
+        if request.is_json:
+            data = request.get_json() 
+        userinput = data['input']
+        userid = ObjectId(session['user_id'])
+        # Update the user's chat history by appending the new input
+        user = users_collection.find_one({ "_id": userid })
+        chats = user["chat_history"] + [userinput]
+        
+        query_filter = {'_id' : userid}
+        update_operation = { '$set' : 
+            { 'chat_history' : chats }
+        }
+        users_collection.update_one(query_filter, update_operation)
+
+        print(users_collection.find_one({"_id": userid}))
+    return 'Chat history updated successfully'
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
@@ -34,7 +55,6 @@ def login():
         else:
             flash("Invalid username or password")
             return render_template('login.html')
-    
     return render_template('login.html')
 
 @app.route('/signup', methods=['GET', 'POST'])
@@ -52,6 +72,7 @@ def signup():
                 return redirect(url_for('signup'))
             new_user = {"username": username, "password": generate_password_hash(password1), "chat_history": []}
             users_collection.insert_one(new_user)
+            session['user_id'] = str(new_user["_id"])
             return redirect(url_for('chatbot'))
         
         else:
