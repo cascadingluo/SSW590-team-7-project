@@ -36,8 +36,6 @@ def save_history():
             { 'chat_history' : chats }
         }
         users_collection.update_one(query_filter, update_operation)
-
-        print(users_collection.find_one({"_id": userid}))
     return 'Chat history updated successfully'
 
 @app.route('/login', methods=['GET', 'POST'])

@@ -3,15 +3,20 @@ The repository of team 8's project for CS555, this team includes, Luo Xu, Annany
 ***important! instructions to run:***
 the basic chatbot functions:
   - open two terminals
-    - in the frontend file run: python3 front.py
-    - in the backend file run: npm start
+    - in the frontend file run: 
+      ```bash
+        pip install -r requirements.txt
+        python3 front.py
+      ```
+    - in the backend file run: 
+      ```bash
+        npm i
+        npm start
+      ```
   
   head to http://127.0.0.1:3000 to see AVA in action!
 
 make sure you have the packages below when running:
-- pip install Flask
-- pip install pymongo
-- npm i mongoose
 
 
 log/track:
