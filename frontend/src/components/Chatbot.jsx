@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 const Chatbot = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
-
+  const userId = localStorage.getItem('userId');
   const handleInputChange = (e) => {
     setInput(e.target.value);
   };
@@ -15,13 +15,15 @@ const Chatbot = () => {
     setMessages((prevMessages) => [...prevMessages, userMessage]);
     setInput("");
 
+    console.log("Sending message:", { userId, role: 'user', content: input });
+
     try {
-      const response = await fetch('http://localhost:3000/api/chat', {
+      const response = await fetch('http://localhost:3000/api/chat/message', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ input }),
+        body: JSON.stringify({userId, role: 'user', content: input}),
       });
 
       if (!response.ok) {
@@ -30,6 +32,8 @@ const Chatbot = () => {
 
       const data = await response.json();
       const botResponse = data.reply;
+    //const utterance = new SpeechSynthesisUtterance("Hello How are you");   -- trying Voice Output
+    //window.speechSynthesis.speak(utterance);
 
       const botMessage = { role: 'bot', content: botResponse };
       setMessages((prevMessages) => [...prevMessages, botMessage]);
@@ -39,6 +43,25 @@ const Chatbot = () => {
         ...prevMessages,
         { role: 'bot', content: "Sorry, I encountered an error. Please try again." },
       ]);
+    }
+  };
+
+  useEffect(() => {
+    if(userId) {
+      fetchChatHistory();
+    }
+  }, [userId]);
+
+  const fetchChatHistory = async () => {
+    try {
+      const response = await fetch(`http://localhost:3000/api/chat/history/${userId}`);
+      if (!response.ok) {
+        throw new Error(`Error: ${response.statusText}`);
+      }
+      const data = await response.json();
+      setMessages(data.chat_history);
+    } catch(error) {
+      console.error("Error fetching chat history:", error);
     }
   };
 
@@ -113,4 +136,3 @@ const Chatbot = () => {
 };
 
 export default Chatbot;
-

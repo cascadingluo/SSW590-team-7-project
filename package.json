@@ -1,5 +1,8 @@
 {
   "dependencies": {
+    "@google/generative-ai": "^0.21.0",
+    "cors": "^2.8.5",
+    "gtts": "^0.2.1",
     "mongoose": "^8.7.3"
   }
 }
