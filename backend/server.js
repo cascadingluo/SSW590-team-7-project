@@ -1,16 +1,20 @@
 // backend/server.js
 import dotenv from "dotenv";
 import router from './routes/user.routes.js';
+import chatRoutes from './routes/chat.routes.js';
 import express from 'express';
 import cors from 'cors';
 import { GoogleGenerativeAI } from '@google/generative-ai';
-import { join } from 'path'; //manages file paths
+import { join } from 'path';
 import { connectDB } from './config/db.js';
+import User from './models/user.model.js';
 
 const app = express();
 app.use(express.json());
 app.use(cors());
+
 app.use("/api/user", router);
+app.use('/api/chat', chatRoutes);
 
 dotenv.config();
 
@@ -31,7 +35,7 @@ const initialPrompts = ["Hey there! How are you feeling today?","Hi! I'm here fo
 "Hey! What’s one thing you’ve been thinking about lately?","Hello! How’s your energy level today? How are you feeling?","Hi! It’s great to check in with you. How are you feeling?","Hey! Let’s chat about how you’re doing today.",
 "Hello! What’s been on your mind this week?","Hi! I’m here for you. How’s your mental health?","Hey! How’s your day going? Need someone to talk to?","Hello! How are you feeling emotionally and mentally?",
 "Hi there! How can I help support you today?","Hey! What’s something you’ve been feeling lately?"
-];
+]; 
 
 //cahtbot api init
 app.post('/api/initChat', async (req, res) => {
@@ -49,6 +53,7 @@ app.post('/api/initChat', async (req, res) => {
 
 app.post('/api/chat', async (req, res) => {
   const userInput = req.body.input;
+  const {userId} = req.body;
 
   const prompt = `You are a compassionate and knowledgeable mental health assistant. Your role is to listen to the user’s emotional concerns and 
     provide supportive advice. Act as a friend or caretaker to the user. Use simple, everyday language to keep things easy to understand. Make 
@@ -56,11 +61,34 @@ app.post('/api/chat', async (req, res) => {
     health or well-being. Keep your ques;cdtions friendly and focused on keeping the conversation going in a positive, engaging way. Provide the best 
     course of action based on this input: ${userInput} Respond in 3-4 sentences.`;
 
-  try {
-    const result = await model.generateContent(prompt);
-    const botResponse = await result.response.text(); // Ensure you await if necessary
+    try {
+      const result = await model.generateContent(prompt);
+      const botResponse = await result.response.text(); // Ensure you await if necessary
+      if (userId){
+        try{
+          await User.findByIdAndUpdate(userId, {
+            $push: {
+              chat_history: [
+              {
+                role: 'user',
+                content: userInput,
+                timestamp: new Date()
+              }, 
+              {
+                role: 'bot',
+                content: botResponse,
+                timestamp: new Date()
+              },
+            ],
+            },
+          });
+          console.log("Chat history saved successfully.");
+        } catch(dbError) {
+          console.error("Database error:", dbError);
+        }
+      }
 
-    res.json({ reply: botResponse });
+      res.json({ reply: botResponse });
   } catch (error) {
     console.error("Error generating response:", error);
     res.status(500).json({ error: "Error generating response" });

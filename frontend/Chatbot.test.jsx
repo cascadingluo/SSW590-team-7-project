@@ -3,6 +3,14 @@ import React from 'react';
 import { render, fireEvent, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import Chatbot from './src/components/Chatbot';
+import Login from './src/components/Login';
+import { BrowserRouter } from 'react-router-dom';
+
+const renderWithRouter = (component) => {
+  return render(<BrowserRouter>{component}</BrowserRouter>);
+};
+
+
 
 describe('Chatbot Component UI Tests', () => {
   test('renders the chat button with the correct initial text', () => {
@@ -90,6 +98,30 @@ describe('Chatbot Component UI Tests', () => {
 
     // Verify the send button is enabled when input is not empty
     expect(sendButton).not.toBeDisabled();
+  });
+
+  test('renders login form correctly', () => {
+    renderWithRouter(<Login />);
+    
+    // Check if username, password fields and submit button are rendered
+    expect(screen.getByLabelText(/username/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/password/i)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /submit/i })).toBeInTheDocument();
+  });
+
+  test('allows user to type username and password', () => {
+    renderWithRouter(<Login />);
+
+    const usernameInput = screen.getByLabelText(/username/i);
+    const passwordInput = screen.getByLabelText(/password/i);
+
+    // Simulate typing
+    fireEvent.change(usernameInput, { target: { value: 'testUser' } });
+    fireEvent.change(passwordInput, { target: { value: 'testPassword' } });
+
+    // Check if input values are updated
+    expect(usernameInput.value).toBe('testUser');
+    expect(passwordInput.value).toBe('testPassword');
   });
 
 });

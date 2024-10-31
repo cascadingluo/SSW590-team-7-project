@@ -147,8 +147,6 @@ def chatGoogle():
     )
 
     try:
-        
-        
         result = chat.send_message(prompt)
         print(result.text) 
         bot_response = result.text  # Assuming response is accessed this way

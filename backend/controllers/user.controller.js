@@ -29,6 +29,7 @@ export const signup = async (req, res) => {
     const user = await User.create({
       username: username,
       password: password,
+      chat_history: [],
     });  
     res.status(200).json(user);
   }
