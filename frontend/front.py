@@ -1,6 +1,8 @@
 from flask import Flask, render_template, request, redirect, url_for, session, flash
 from pymongo import MongoClient
 from werkzeug.security import generate_password_hash, check_password_hash
+import datetime
+from bson import ObjectId
 
 app = Flask(__name__)
 app.secret_key = "supersecretkey"
@@ -65,6 +67,31 @@ def logout():
     session.pop('user_id', None)
     flash("Logged out successfully")
     return render_template('login.html')
+
+@app.route('/send_message', methods=['POST'])
+def send_message():
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+    
+    user_id = session['user_id']
+    message = request.form['message']
+    
+    # Save the user's message to the database
+    users_collection.update_one(
+        {"_id": ObjectId(user_id)},
+        {"$push": {"chat_history": {"message": message, "timestamp": datetime.datetime.now()}}}
+    )
+    
+    # Generate bot response (this is a placeholder, replace with actual bot logic)
+    bot_response = "This is a bot response."
+    
+    # Save the bot's response to the database
+    users_collection.update_one(
+        {"_id": ObjectId(user_id)},
+        {"$push": {"chat_history": {"message": bot_response, "timestamp": datetime.datetime.now()}}}
+    )
+    
+    return {"reply": bot_response}
 
 if __name__ == '__main__':
     app.run(debug=True, port=3000)

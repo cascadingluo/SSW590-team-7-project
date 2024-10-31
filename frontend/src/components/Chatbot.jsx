@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 const Chatbot = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -12,6 +12,7 @@ const Chatbot = () => {
   const sendMessage = async () => {
     if (!input.trim()) return;
     const userMessage = { role: 'user', content: input };
+    console.log(userMessage);
     setMessages((prevMessages) => [...prevMessages, userMessage]);
     setInput("");
 
@@ -42,7 +43,7 @@ const Chatbot = () => {
     }
   };
 
-  // Using browser's SpeechRecognition API for recognising voice input as well along with text. 
+  // Voice input handler remains unchanged
   const handleVoiceInput = () => {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     const recognition = new SpeechRecognition();
@@ -53,7 +54,7 @@ const Chatbot = () => {
 
     recognition.onresult = (event) => {
       const transcript = event.results[0][0].transcript;
-      setInput(transcript); // Set the transcribed text to input
+      setInput(transcript);
       sendMessage();
     };
 
@@ -61,8 +62,24 @@ const Chatbot = () => {
       console.error("Error occurred in recognition: ", event.error);
     };
 
-    recognition.start(); // Starts voice recognition
+    recognition.start();
   };
+
+  // Add useEffect hook for text-to-speech
+  useEffect(() => {
+    console.log("useEffect triggered");
+    if (messages.length > 0) {
+      const lastMessage = messages[messages.length - 1];
+      console.log("Last message:", lastMessage);
+      if (lastMessage.role === 'bot') {
+        console.log("Initiating speech synthesis");
+        window.speechSynthesis.cancel();
+        const utterance = new SpeechSynthesisUtterance(lastMessage.content);
+        window.speechSynthesis.speak(utterance);
+      }
+    }
+  }, [messages]);
+  
 
   return (
     <div>
@@ -113,4 +130,3 @@ const Chatbot = () => {
 };
 
 export default Chatbot;
-

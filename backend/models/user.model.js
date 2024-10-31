@@ -1,5 +1,16 @@
 import mongoose from 'mongoose';
 
+const chatSchema = new mongoose.Schema({
+    message: {
+        type: String,
+        required: true
+    },
+    timestamp: {
+        type: Date,
+        default: Date.now
+    }
+});
+
 const userSchema = new mongoose.Schema({
     username: {
         type: String,
@@ -10,7 +21,7 @@ const userSchema = new mongoose.Schema({
         required: true
     },
     chat_history: {
-        type: String,
+        type: [chatSchema],
         required: false
     },
 }, {

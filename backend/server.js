@@ -16,6 +16,7 @@ dotenv.config();
 
 const genAI = new GoogleGenerativeAI(process.env.API_KEY);
 const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+//const model = genAI.getGenerativeModel({ model: "tunedModels/my-increment-model" });
 
 const initialPrompts = ["Hey there! How are you feeling today?","Hi! I'm here for you. What’s on your mind?","Hello! How’s everything going for you today?","Hey! I’m ready to listen. How are you feeling?",
 "Hi there! How are you doing, both physically and mentally?","Hello! What’s something you’d like to talk about today?","Hi! How’s your day been so far?","Hey! It’s good to see you. How are you holding up?",
