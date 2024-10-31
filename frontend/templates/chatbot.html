@@ -36,8 +36,10 @@
 
       <!-- User Input Section -->
       <div class="user-message">
-        <input type="text" placeholder="Type your message..." class="input-box">
-        <button class="enter-button">Enter</button>
+        <!-- <button class="enter-button">Enter</button> -->
+          <input id="input" type="text" name="input" placeholder="Type your message..." class="input-box">
+          <button type="submit" class="enter-button">Enter</button>
+
       </div>
     </div>
 
@@ -73,8 +75,12 @@
       });
       
       // Function to handle sending the message
-      function sendMessage() {
-        const userInput = inputBox.value;        
+      async function sendMessage() {
+        const userId = sessionStorage.getItem('user_id'); 
+        const userInput = inputBox.value;  
+
+        console.log(sessionStorage);
+
 
         if (userInput.trim() === "") return; // Prevent empty messages
 
@@ -82,7 +88,7 @@
         const userMessage = document.createElement('div');
         userMessage.className = 'message right';
         userMessage.innerHTML = `<div class="bubble">${userInput}</div>`;
-        document.querySelector('.chat-window').prepend(userMessage); // Adds to the top
+        document.querySelector('.chat-window').prepend(userMessage);
 
         // Clear the input box after sending the message
         inputBox.value = "";
@@ -93,23 +99,56 @@
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ input: userInput }),
+          body: JSON.stringify({ input: userInput, 
+            userId: userId
+           }),
         })
         .then(response => response.json())
         .then(data => {
-          // Append bot response to the chat
+
+        // Append bot response to the chat
           const botMessage = document.createElement('div');
           botMessage.className = 'message left';
           botMessage.innerHTML = `
             <div class="profile-pic"></div> <!-- Placeholder for AVA's profile -->
             <div class="bubble">${data.reply}</div>`;
           document.querySelector('.chat-window').prepend(botMessage); // Adds to the top
-        })
-        .catch((error) => {
-          console.error('Error:', error);
-        });
-      }
 
+        // Saving History in chat_history array in database. 
+        fetch('/save_history', {
+            method: 'POST', 
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ 
+              messages: [
+                {
+                  role: 'user',
+                  content: userInput,
+                  timestamp: new Date()
+                },
+                {
+                  role: 'bot',
+                  content: data.reply,
+                  timestamp: new Date()
+                }
+              ]
+            })
+          })
+          .catch(error => {
+            console.error('Error:', error);
+          });
+      })
+      .catch(error => {
+        console.error('Error getting bot response:', error);
+        const errorMessage = document.createElement('div');
+        errorMessage.className = 'message left';
+        errorMessage.innerHTML = `
+          <div class="profile-pic"></div>
+          <div class="bubble">Sorry, there was an error. Please try again.</div>`;
+        document.querySelector('.chat-window').prepend(errorMessage);
+      });
+    }  
 
       document.querySelector('.enter-button').addEventListener('click', function() {
         if (!isListening) sendMessage(); // Only allow sending if not listening to speech

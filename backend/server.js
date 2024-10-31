@@ -5,13 +5,14 @@ import chatRoutes from './routes/chat.routes.js';
 import express from 'express';
 import cors from 'cors';
 import { GoogleGenerativeAI } from '@google/generative-ai';
-import { join } from 'path'; //manages file paths
+import { join } from 'path';
 import { connectDB } from './config/db.js';
 import User from './models/user.model.js';
 
 const app = express();
 app.use(express.json());
 app.use(cors());
+
 app.use("/api/user", router);
 app.use('/api/chat', chatRoutes);
 
