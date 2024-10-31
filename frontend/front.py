@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for, session, flash
 from pymongo import MongoClient
 from werkzeug.security import generate_password_hash, check_password_hash
+from bson import ObjectId
 
 app = Flask(__name__)
 app.secret_key = "supersecretkey"
@@ -19,6 +20,29 @@ def chatbot():
 def index():
     return redirect(url_for('login'))
 
+@app.route('/save_history', methods=['POST'])
+def save_history():
+    if request.method == 'POST' and request.is_json:
+        data = request.get_json() 
+        messages = data['messages']
+        userid = ObjectId(session['user_id'])
+
+        users_collection.update_one(
+            {'_id' : userid},
+            {'$push': {
+                'chat_history': {
+                    '$each' : [
+                        {
+                        'role': msg['role'],
+                        'content': msg['content'],
+                        'timestamp': msg['timestamp']
+                        } for msg in messages
+                    ]
+                }
+            }}
+        )
+        return 'Chat history updated successfully'
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
@@ -34,7 +58,6 @@ def login():
         else:
             flash("Invalid username or password")
             return render_template('login.html')
-    
     return render_template('login.html')
 
 @app.route('/signup', methods=['GET', 'POST'])
@@ -50,8 +73,9 @@ def signup():
             if password1 != password2:
                 flash("Passwords do not match")
                 return redirect(url_for('signup'))
-            new_user = {"username": username, "password": generate_password_hash(password1)}
+            new_user = {"username": username, "password": generate_password_hash(password1), "chat_history": []}
             users_collection.insert_one(new_user)
+            session['user_id'] = str(new_user["_id"])
             return redirect(url_for('chatbot'))
         
         else:
@@ -59,7 +83,7 @@ def signup():
             return redirect(url_for('signup'))
     
     return render_template('signup.html')
-
+        
 @app.route('/logout')
 def logout():
     session.pop('user_id', None)
