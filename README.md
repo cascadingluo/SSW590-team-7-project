@@ -28,11 +28,11 @@ log/track:
 
 - Sprint 2:
   - Intergrating the Backend and Frontend, shows the basic functionalities developed in sprint 1 with the actual front end. ✅
-  - Further development of the Backend with Voice output and better Voice Input Recognition, Fine-tuning the assistant and using the Q/A document for accurate responses.
-  - See Jira for specific user stories.
+  - Further development of the Backend with Voice output and better Voice Input Recognition, Fine-tuning the assistant and using the Q/A document for accurate responses. ✅
+  - See Jira for specific user stories. ✅
     
 - Sprint 3:
-  - starting in 2 weeks
+  - in progress 
     
 - Sprint 4:
   - starting in 4 weeks
