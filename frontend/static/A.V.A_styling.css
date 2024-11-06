@@ -18,9 +18,6 @@ body {
     border: 2px solid #ccc;
     border-radius: 15px; 
     overflow: hidden;
-}
-
-.layout-grid {
     display: grid;
     grid-template-columns: 1fr 5fr;
     grid-template-rows: auto 1fr auto;
@@ -69,20 +66,20 @@ header {
 
 .ava_logo {
     width: 40px;
-    height: 40px; /* Maintain aspect ratio */
+    height: 40px; 
     display: inline-block;
     vertical-align: middle;
 }
 
 .profile-pic {
-    width: 60px;           /* Set the size of the profile image */
+    width: 60px;         
     height: 60px;
-    background-color: #7ec8e3; /* Placeholder color */
-    border-radius: 50%;     /* Make it circular */
-    display: inline-block;  /* Display it next to the text bubble */
-    margin: 10px;     /* Add some spacing between the profile picture and the bubble */
+    background-color: #7ec8e3; 
+    border-radius: 50%;    
+    display: inline-block; 
+    margin: 10px;     
     background-image: url('/static/ava_logo.png'); 
-    background-size: cover; /* Ensure the image fits */
+    background-size: cover; 
     background-position: center;
 }
 
@@ -106,13 +103,13 @@ header {
     display: flex;
     justify-content: center;
     align-items: center;
-    padding: 10px;
+    padding: 20%;
 }
 
 .talk-button {
     background-color: #8fbc8f;
     border: none;
-    padding: 15px;
+    padding: 30%;
     border-radius: 10px;
     font-size: 18px;
     cursor: pointer;
