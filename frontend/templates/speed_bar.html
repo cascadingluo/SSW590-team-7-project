@@ -1,0 +1,60 @@
+<!-- THE SPEED BAR DOESN'T SHOW IN THE WEDSIDE -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Speed Bar</title>
+  <style>
+    .speed-bar-container {
+      width: 300px;
+      height: 30px;
+      background-color: #e0e0e0;
+      border-radius: 5px;
+      overflow: hidden;
+      margin-top: 20px;
+    }
+
+    .speed-bar {
+      height: 100%;
+      width: 0;
+      background-color: #4caf50;
+      transition: width 0.3s;
+    }
+
+    .slider {
+      width: 100%;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+
+<h2>Speed Bar Example</h2>
+
+<input type="range" min="0" max="100" value="0" class="slider" id="speedSlider">
+
+<div class="speed-bar-container">
+  <div class="speed-bar" id="speedBar"></div>
+</div>
+
+<p>Current Speed: <span id="speedValue">0</span>%</p>
+
+<script>
+  function updateSpeedBar() {
+    const speedSlider = document.getElementById("speedSlider");
+    const speedBar = document.getElementById("speedBar");
+    const speedValue = document.getElementById("speedValue");
+
+    speedSlider.addEventListener("input", () => {
+      const speed = speedSlider.value;
+      speedValue.textContent = speed;
+      speedBar.style.width = `${speed}%`;
+    });
+  }
+
+  document.addEventListener("DOMContentLoaded", updateSpeedBar);
+</script>
+
+</body>
+</html>
+

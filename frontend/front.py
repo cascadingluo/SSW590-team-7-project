@@ -116,5 +116,9 @@ def send_message():
     
     return {"reply": bot_response}
 
+@app.route('/speed_bar')
+def speed_bar():
+    return render_template('speed_bar.html')
+
 if __name__ == '__main__':
     app.run(debug=True, port=3000)
