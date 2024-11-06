@@ -1,9 +1,6 @@
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: "Courier New", monospace;
-}
+@import url(global.css);
+
+/*bad smell 1: duplicated code in A.V.A and login*/ 
 
 body {
     display: flex;
@@ -30,9 +27,9 @@ header {
 }
 
 .ava_logo {
-    width: 30px;  /* Adjust width as needed */
-    height: auto; /* Maintain aspect ratio */
-    display: inline-block; /* Ensure it stays inside the button */
+    width: 30px;  
+    height: auto;
+    display: inline-block; 
     vertical-align: middle;
 }
 
