@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify
 from pymongo import MongoClient
 from werkzeug.security import generate_password_hash, check_password_hash
-import datetime
+from datetime import datetime
 from bson import ObjectId
 
 app = Flask(__name__)
@@ -24,6 +24,7 @@ def index():
 @app.route('/reminders')
 def reminders():
     return render_template('reminders.html')
+    
 #Helper Function to process the message data
 def process_messages(messages):
     return [
@@ -140,9 +141,10 @@ def send_message():
 
 #Helper function to save messages to the database.
 def save_to_chat_history(user_id, message):
+    timestamp = datetime.now()
     users_collection.update_one(
         {"_id": ObjectId(user_id)},
-        {"$push": {"chat_history": {"message": message, "timestamp": datetime.now()}}}
+        {"$push": {"chat_history": {"message": message, "timestamp": timestamp}}}
     )
 
 def generate_bot_response():
