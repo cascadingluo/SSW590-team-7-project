@@ -11,7 +11,7 @@ document.addEventListener("DOMContentLoaded", () => {
         // Set the HTML content for the reminder
         reminderItem.innerHTML = `
             <div class="reminder-content">
-                <h3>Reminder: <input type="text" class="reminder-title" value="Grandson Harry's Band Practice" disabled></h3>
+                <h3>Reminder: <input type="text" class="reminder-title" value="click on edit reminder to modify" disabled></h3>
                 <div>
                     <span class="reminder-label">Time:</span>
                     <input type="time" class="reminder-time" value="19:00" disabled>
