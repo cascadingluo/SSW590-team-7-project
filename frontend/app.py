@@ -70,6 +70,10 @@ def chatbot():
 def index():
     return redirect(url_for('login'))
 
+@app.route('/reminders')
+def reminders():
+    return render_template('reminders.html')
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':

@@ -21,6 +21,10 @@ def chatbot():
 def index():
     return redirect(url_for('login'))
 
+@app.route('/reminders')
+def reminders():
+    return render_template('reminders.html')
+
 @app.route('/save_history', methods=['POST'])
 def save_history():
     if request.method == 'POST' and request.is_json:

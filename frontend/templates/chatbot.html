@@ -43,7 +43,7 @@
         <h2>Welcome to A.V.A, your personal AI health assistant...</h2>
       </div>
       <div class="header-right">
-        <button class="header-btn">languages</button>
+        <a class="header-btn" href="/reminders">reminders</a>
         <button class="header-btn">settings</button>
         <a class="header-btn" href="/logout">logout</a>
       </div>
@@ -211,6 +211,20 @@
       speedValue.textContent = speed;
       speedBar.style.width = speed + "%";
     });
+
+    // Function to show notification for reminders
+    function showReminderNotification(reminder) {
+        const notification = document.createElement("div");
+        notification.className = "reminder-notification";
+        notification.innerHTML = `
+            <div class="bubble">${reminder.text} at ${reminder.time}</div>
+            <button onclick="this.parentNode.remove()">Done</button>
+        `;
+        document.querySelector('.chat-window').appendChild(notification);
+    }
+
+    // Example of scheduling the notification (you'd need to implement the scheduling logic)
+    setTimeout(() => showReminderNotification({ text: "Example Reminder", time: "7:00 PM" }), 5000); // Example notification in 5 seconds
   </script>
 </body>
 </html>

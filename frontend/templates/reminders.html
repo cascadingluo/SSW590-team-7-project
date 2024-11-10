@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/static/reminders.css">
+    <title>Reminders</title>
+</head>
+<body>
+    <!-- Header Section -->
+    <header>
+        <div class="header-left">
+            <button class="header-btn">
+                <img src="/static/ava_logo.png" alt="AVA logo" class="ava_logo">
+            </button>
+        </div>
+        <div class="header-center">
+            <h2>Here you can set your reminders. AVA will notify you while you are in the chatroom.</h2>
+        </div>
+        <div class="header-right">
+            <a href="/chatbot" class="header-btn">Chatbot</a>
+            <a href="/settings" class="header-btn">Settings</a>
+        </div>
+    </header>
+
+    <!-- Reminder List Section -->
+    <main class="reminder-list" id="reminderList">
+        <!-- Buttons for adding/removing reminders -->
+        <button class="add-btn" id="addReminderBtn">Add Reminder</button>
+    </main>
+
+    <script src="/static/reminders.js"></script>
+</body>
+</html>

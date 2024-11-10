@@ -4,9 +4,15 @@ import router from './routes/user.routes.js';
 import express from 'express';
 import cors from 'cors';
 import { GoogleGenerativeAI } from '@google/generative-ai';
-import { join } from 'path';
+import path from 'path';
 import { connectDB } from './config/db.js';
 import User from './models/user.model.js';
+import { fileURLToPath } from 'url';
+
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 
 const app = express();
 app.use(express.json());
