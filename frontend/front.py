@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, session, flash
+from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify
 from pymongo import MongoClient
 from werkzeug.security import generate_password_hash, check_password_hash
 import datetime
@@ -24,29 +24,52 @@ def index():
 @app.route('/reminders')
 def reminders():
     return render_template('reminders.html')
+#Helper Function to process the message data
+def process_messages(messages):
+    return [
+        {
+            'role': msg.get('role'),
+            'content': msg.get('content'),
+            'timestamp': msg.get('timestamp') or datetime.datetime.now().isoformat()
+        }
+        for msg in messages
+    ]
+
+#Helper Function to get current user's ID from the session
+def get_user_id():
+    user_id = session.get('user_id')
+    if not user_id:
+        raise ValueError("User ID not found in session.")
+    return ObjectId(user_id)
 
 @app.route('/save_history', methods=['POST'])
 def save_history():
     if request.method == 'POST' and request.is_json:
         data = request.get_json() 
-        messages = data['messages']
-        userid = ObjectId(session['user_id'])
 
-        users_collection.update_one(
-            {'_id' : userid},
-            {'$push': {
-                'chat_history': {
-                    '$each' : [
-                        {
-                        'role': msg['role'],
-                        'content': msg['content'],
-                        'timestamp': msg['timestamp']
-                        } for msg in messages
-                    ]
-                }
-            }}
-        )
-        return 'Chat history updated successfully'
+        if 'messages' not in data:
+            return jsonify({"error": "'messages' field is required."}), 400
+        
+        messages = data['messages']
+
+        try:
+            formatted_messages = process_messages(messages)
+            user_id = get_user_id()
+            
+            result = users_collection.update_one(
+                {'_id': user_id},
+                {'$push': {
+                    'chat_history': {'$each': formatted_messages}
+                }}
+            )
+
+            if result.matched_count == 0:
+                return jsonify({"error": "User not found."}), 404
+
+            return jsonify({"message": "Chat history updated successfully"}), 200
+        
+        except ValueError as e:
+            return jsonify({"error": str(e)}), 400
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -101,24 +124,29 @@ def send_message():
         return redirect(url_for('login'))
     
     user_id = session['user_id']
-    message = request.form['message']
+    message = request.form.get('message')
+
+    if not message:
+        return jsonify({"error": "Message cannot be empty"}), 400
     
-    # Save the user's message to the database
+    # Save message to the user's chat history
+    save_to_chat_history(user_id, message)
+    
+    bot_response = generate_bot_response()
+
+    save_to_chat_history(user_id, bot_response)
+
+    return jsonify({"reply": bot_response})
+
+#Helper function to save messages to the database.
+def save_to_chat_history(user_id, message):
     users_collection.update_one(
         {"_id": ObjectId(user_id)},
-        {"$push": {"chat_history": {"message": message, "timestamp": datetime.datetime.now()}}}
+        {"$push": {"chat_history": {"message": message, "timestamp": datetime.now()}}}
     )
-    
-    # Generate bot response (this is a placeholder, replace with actual bot logic)
-    bot_response = "This is a bot response."
-    
-    # Save the bot's response to the database
-    users_collection.update_one(
-        {"_id": ObjectId(user_id)},
-        {"$push": {"chat_history": {"message": bot_response, "timestamp": datetime.datetime.now()}}}
-    )
-    
-    return {"reply": bot_response}
+
+def generate_bot_response():
+    return "This is a bot response."
 
 @app.route('/speed_bar')
 def speed_bar():
