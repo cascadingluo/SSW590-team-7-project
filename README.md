@@ -8,15 +8,6 @@ the basic chatbot functions:
         pip install -r requirements.txt
         python3 app.py
       ```
-    - in the backend file run: 
-      ```bash
-        npm i
-        npm start
-      ```
-    - to run the test script
-      ```bash
-        npm test
-      ```
   
   head to http://127.0.0.1:3000 to see AVA in action!
 
