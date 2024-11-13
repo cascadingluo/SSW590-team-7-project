@@ -2,8 +2,10 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>A.V.A Interface</title>
   <link rel="stylesheet" href="/static/A.V.A_styling.css"> <!-- Path to CSS -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   <style>
     /* Styling for the speed bar container */
     .speed-bar-container {
@@ -97,7 +99,7 @@
 
     // Fetch the initial chatbot prompt
     document.addEventListener("DOMContentLoaded", () => {
-      fetch('http://localhost:3000/api/initChat', {
+      fetch('/api/initChat', {
         method: 'POST',
       })
       .then(response => response.json())
@@ -124,7 +126,7 @@
       inputBox.value = "";
 
       // Send the message to the backend
-      fetch('http://localhost:3000/api/chat', {
+      fetch('/api/chat', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -226,6 +228,25 @@
 
     // Example of scheduling the notification (you'd need to implement the scheduling logic)
     setTimeout(() => showReminderNotification({ text: "Example Reminder", time: "7:00 PM" }), 5000); // Example notification in 5 seconds
+
+    // jQuery for sending message
+    $(document).ready(function() {
+      $('#send').click(function() {
+          var message = $('#message').val();
+          $.ajax({
+              url: '/send_messages', 
+              type: 'POST',
+              contentType: 'application/json',
+              data: JSON.stringify({ message: message }),
+              success: function(response) {
+                  $('#chatbox').append('<div>' + response.reply + '</div>');
+              },
+              error: function(error) {
+                  console.error('Error:', error);
+              }
+          });
+      });
+    });
   </script>
 </body>
 </html>
