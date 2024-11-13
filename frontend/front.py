@@ -72,44 +72,49 @@ def save_history():
         except ValueError as e:
             return jsonify({"error": str(e)}), 400
 
+# this code does NOT validate the input from the form, i.e if username and password are null
+# include one return point if something failed
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
-        
-        user = users_collection.find_one({"username": username})
-        
-        if user and check_password_hash(user["password"], password):
-            session['user_id'] = str(user["_id"])
-            flash("Login successful!")
-            return redirect(url_for('chatbot'))
-        else:
-            flash("Invalid username or password")
-            return render_template('login.html')
+
+        if username and password:
+            user = users_collection.find_one({"username": username})
+            if user and check_password_hash(user["password"], password):
+                session['user_id'] = str(user["_id"])
+                flash("Login successful!")
+                return redirect(url_for('chatbot'))
+            else:
+                flash("Invalid username or password")
     return render_template('login.html')
 
+# this code does NOT validate the input from the form, i.e if username and password are null
+# it would make sense to first check if passwords match, then check if the user already exists
+# multiple calls to redirect, it would be cleaner to have one destination
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
     if request.method == 'POST':
         username = request.form['username']
         password1 = request.form['password1']
         password2 = request.form['password2']
-        
-        user = users_collection.find_one({"username": username})
 
-        if user is None:
+        if userename and password1 and password2:
+            user = users_collection.find_one({"username": username})
             if password1 != password2:
                 flash("Passwords do not match")
+                    return redirect(url_for('signup'))
+            if user is None:
+                
+                new_user = {"username": username, "password": generate_password_hash(password1), "chat_history": []}
+                users_collection.insert_one(new_user)
+                session['user_id'] = str(new_user["_id"])
+                return redirect(url_for('chatbot'))
+            
+            else:
+                flash("Username is taken.")
                 return redirect(url_for('signup'))
-            new_user = {"username": username, "password": generate_password_hash(password1), "chat_history": []}
-            users_collection.insert_one(new_user)
-            session['user_id'] = str(new_user["_id"])
-            return redirect(url_for('chatbot'))
-        
-        else:
-            flash("Username is taken.")
-            return redirect(url_for('signup'))
     
     return render_template('signup.html')
         
