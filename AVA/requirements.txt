@@ -4,3 +4,4 @@ werkzeug
 pytest
 pytest-cov
 python-dotenv
+google.generativeai

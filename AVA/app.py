@@ -10,12 +10,11 @@ import os
 
 load_dotenv()
 app = Flask(__name__)
-app.secret_key = "supersecretkey"
+app.secret_key = os.getenv("SECRET_KEY")
 
 # MongoDB Connection
-client = MongoClient('mongodb+srv://asalama0204:ye16MiS52yKp1sAC@cluster0.zli9h.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0&ssl=true&tlsAllowInvalidCertificates=true')
+client = MongoClient(os.getenv("MONGO_URI"))
 db = client.test 
-print(os.getenv("API_KEY"))
 
 # Initialize Google Generative AI
 # Set the API key for google.generativeai
