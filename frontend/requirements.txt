@@ -1,2 +1,6 @@
-Flask
+flask
 pymongo
+werkzeug
+pytest
+pytest-cov
+python-dotenv
