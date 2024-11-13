@@ -2,17 +2,20 @@ from flask import Flask, render_template, request, redirect, url_for, session, f
 from pymongo import MongoClient
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
+from dotenv import load_dotenv
 import google.generativeai as genai
 from bson import ObjectId
 import random
 import os 
 
+load_dotenv()
 app = Flask(__name__)
 app.secret_key = "supersecretkey"
 
 # MongoDB Connection
 client = MongoClient('mongodb+srv://asalama0204:ye16MiS52yKp1sAC@cluster0.zli9h.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0&ssl=true&tlsAllowInvalidCertificates=true')
 db = client.test 
+
 print(os.getenv("API_KEY"))
 
 # Initialize Google Generative AI
@@ -95,8 +98,7 @@ def chat():
 
     try:
         result = chat_object.send_message(prompt)
-        bot_response = result.text  # Ensure you access the correct field in the response
-        print(bot_response)
+        bot_response = result.text
 
         if user_id:
             try:
@@ -245,7 +247,7 @@ def generate_bot_response():
     try:
         result = chat_object.send_message(prompt)
         print(result.text) 
-        bot_response = result.text  # Assuming response is accessed this way
+        bot_response = result.text
         return jsonify({"reply": bot_response})
     except Exception as error:
         print("Error generating response:", error)
