@@ -5,8 +5,8 @@ import json
 import datetime
 from bson import ObjectId
 from pymongo import MongoClient
+from unittest.mock import patch
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../frontend')))
-# from front import app, users_collection
 from AVA.app import app, users_collection
 
 #Test cases to check the save_history() and send_message() function is working or not. 
@@ -19,16 +19,23 @@ class DateTimeEncoder(json.JSONEncoder):
         return super().default(obj)
 
 class FlaskTestCase(unittest.TestCase):
-    
+     
+    @patch('builtins.input', return_value='')
     def setUp(self):
         self.app = app.test_client()
         self.app.testing = True
-        
+
+        #checking if that test user is not present already
+        existing_user = users_collection.find_one({"username": "testuser"})
+        if existing_user:
+            self.test_user = existing_user
+        else:
         # Create a temporary test user in MongoDB
-        self.test_user = users_collection.insert_one({
-            "username": "testuser",
-            "chat_history": []
-        })
+            self.test_user = users_collection.insert_one({
+                "username": "testuser",
+                "chat_history": []
+            })
+
         # Stored ID of created user
         self.test_user_id = str(self.test_user.inserted_id)
         print(f"Created test user with ID: {self.test_user_id}")
@@ -38,7 +45,7 @@ class FlaskTestCase(unittest.TestCase):
             with c.session_transaction() as sess:
                 sess['user_id'] = self.test_user_id
         
-        input("\nTest user has been created, press Enter to continue with the tests")
+        #input("\nTest user has been created, press Enter to continue with the tests")
 
     def test_save_history(self):
         print("\n Testing save_history endpoint")
@@ -63,7 +70,7 @@ class FlaskTestCase(unittest.TestCase):
         print("\nMessages have been saved - Check MongoDB")
         print(f"Check user with ID: {self.test_user_id}")
 
-        input("Press Enter to continue with verification")
+        #input("Press Enter to continue with verification")
         
         # Verify database state
         user = users_collection.find_one({"_id": ObjectId(self.test_user_id)})
@@ -81,7 +88,7 @@ class FlaskTestCase(unittest.TestCase):
         
         print("\nMessage has been sent. Check MongoDB now.")
         print(f"Check user with ID: {self.test_user_id}")
-        input("Press Enter to continue with verification")
+        #input("Press Enter to continue with verification")
         
         # Verify database state
         user = users_collection.find_one({"_id": ObjectId(self.test_user_id)})
@@ -94,7 +101,7 @@ class FlaskTestCase(unittest.TestCase):
     
     def tearDown(self):
         print("\n Ready to clean up test environment")
-        input("Press Enter to delete the test user")
+        #input("Press Enter to delete the test user")
         users_collection.delete_one({"_id": ObjectId(self.test_user_id)})
         print(f"Deleted test user with ID: {self.test_user_id}")
 
