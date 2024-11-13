@@ -2,12 +2,11 @@ The repository of team 8's project for CS555, this team includes, Luo Xu, Annany
 
 ***important! instructions to run:***
 the basic chatbot functions:
-  - open two terminals
-    - in the frontend file run: 
-      ```bash
-        pip install -r requirements.txt
-        python3 app.py
-      ```
+  - in the frontend file run: 
+    ```bash
+      pip install -r requirements.txt
+      python3 app.py
+    ```
   
   head to http://127.0.0.1:3000 to see AVA in action!
 
