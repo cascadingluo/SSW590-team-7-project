@@ -37,3 +37,4 @@ def test_user_can_type_username_password(client):
     assert response.status_code in [200, 302] 
     if response.status_code == 200:
         assert b"Welcome" in response.data 
+ 
