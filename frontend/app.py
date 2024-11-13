@@ -15,7 +15,6 @@ app.secret_key = "supersecretkey"
 # MongoDB Connection
 client = MongoClient('mongodb+srv://asalama0204:ye16MiS52yKp1sAC@cluster0.zli9h.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0&ssl=true&tlsAllowInvalidCertificates=true')
 db = client.test 
-
 print(os.getenv("API_KEY"))
 
 # Initialize Google Generative AI
@@ -23,25 +22,9 @@ print(os.getenv("API_KEY"))
 genai.configure(api_key=os.getenv("API_KEY"))
 
 users_collection = db.users 
-initial_prompts = [
-    "Hey there! How are you feeling today?", "Hi! I'm here for you. What’s on your mind?",
-    "Hello! How’s everything going for you today?", "Hey! I’m ready to listen. How are you feeling?",
-    "Hi there! How are you doing, both physically and mentally?", "Hello! What’s something you’d like to talk about today?",
-    "Hi! How’s your day been so far?", "Hey! It’s good to see you. How are you holding up?",
-    "Hello! How can I support you today?", "Hi! What’s been on your mind lately?",
-    "Hey! I’m here to help you feel better. How are you?", "Hi! I’d love to hear how you’re doing today.",
-    "Hello! Is there anything on your mind that you'd like to share?", "Hey! How’s your mood today?",
-    "Hi there! How are you feeling emotionally today?", "Hello! It’s great to see you. How’s everything going for you?",
-    "Hi! How are you feeling in this moment?", "Hey! I’m here if you need someone to talk to. How are you?",
-    "Hello! How’s your mental health been lately?", "Hi! Let’s chat. How are you feeling today?",
-    "Hey! How’s your headspace today? Need a little support?", "Hello! What’s something on your mind that we can talk about?",
-    "Hi there! How are things going for you today?", "Hey! How are you really feeling today?",
-    "Hello! How has your week been so far?", "Hi! Anything on your mind that you’d like to talk about?",
-    "Hey! How can I be helpful to you today?", "Hi there! How’s your emotional well-being right now?"]
 
-
-#model = genai.GenerativeModel(model_name="gemini-1.5-flash")
-model = genai.GenerativeModel(model_name="tunedModels/avamentalhealthft1-23b1qsi4o8g0")
+model = genai.GenerativeModel(model_name="gemini-1.5-flash")
+#model = genai.GenerativeModel(model_name="tunedModels/avamentalhealthft1-23b1qsi4o8g0")
 chat_object = model.start_chat()
 
 @app.route('/chatbot')
@@ -74,12 +57,64 @@ def get_user_id():
         raise ValueError("User ID not found in session.")
     return ObjectId(user_id)
 
+def get_chat_history():
+    user_id = get_user_id()
+    user = users_collection.find_one({"_id": ObjectId(user_id)})
+    if user and "chat_history" in user:
+        return user["chat_history"]
+    return []
+
+def model_with_history():
+    chat_history = get_chat_history()
+    # for new users, the chat history will be empty. 
+    if not chat_history:
+        initial_prompts = [
+            "Hey there! How are you feeling today?", "Hi! I'm here for you. What’s on your mind?",
+            "Hello! How’s everything going for you today?", "Hey! I’m ready to listen. How are you feeling?",
+            "Hi there! How are you doing, both physically and mentally?", "Hello! What’s something you’d like to talk about today?",
+            "Hi! How’s your day been so far?", "Hey! It’s good to see you. How are you holding up?",
+            "Hello! How can I support you today?", "Hi! What’s been on your mind lately?",
+            "Hey! I’m here to help you feel better. How are you?", "Hi! I’d love to hear how you’re doing today.",
+            "Hello! Is there anything on your mind that you'd like to share?", "Hey! How’s your mood today?",
+            "Hi there! How are you feeling emotionally today?", "Hello! It’s great to see you. How’s everything going for you?",
+            "Hi! How are you feeling in this moment?", "Hey! I’m here if you need someone to talk to. How are you?",
+            "Hello! How’s your mental health been lately?", "Hi! Let’s chat. How are you feeling today?",
+            "Hey! How’s your headspace today? Need a little support?", "Hello! What’s something on your mind that we can talk about?",
+            "Hi there! How are things going for you today?", "Hey! How are you really feeling today?",
+            "Hello! How has your week been so far?", "Hi! Anything on your mind that you’d like to talk about?",
+            "Hey! How can I be helpful to you today?", "Hi there! How’s your emotional well-being right now?"
+        ]
+        random_prompt = random.choice(initial_prompts)
+        print(f"Selected initial prompt: {random_prompt}") 
+        return f"Bot: {random_prompt}"
+    
+    #otherwise, i built the prompt with existing chat history. 
+    prompt_history = ""
+    for msg in chat_history:
+        role = msg["role"]
+        content = msg["content"]
+        prompt_history += f"{role.capitalize()}: {content}\n"
+
+    guidance_prompt = (
+        "This is the chat history of a user with A.V.A, a personal AI health assistant. "
+        "Please ask a relevant question that touches base on how they are feeling or any "
+        "specific condition they mentioned earlier. Be empathetic and encourage discussion."
+    )
+    initial_prompt = f"{guidance_prompt}\n\n{prompt_history}Bot:"
+    return initial_prompt
+
 @app.route('/api/initChat', methods=['POST'])
 def init_chat():
-    initial_prompt = random.choice(initial_prompts)
-    
     try:
-        return jsonify({"reply": initial_prompt})
+        prompt = model_with_history()
+        chat_history = get_chat_history()
+        if not chat_history:
+            bot_response = prompt.replace("Bot: ", "")
+        else:
+            result = chat_object.send_message(prompt)
+            follow_up_question = " Would you like to continue talking about this, or is there something new you'd like to discuss today?"
+            bot_response = result.text + follow_up_question
+        return jsonify({"reply": bot_response})
     except Exception as error:
         print("Error generating initial response:", error)
         return jsonify({"error": "Error generating initial response"}), 500
