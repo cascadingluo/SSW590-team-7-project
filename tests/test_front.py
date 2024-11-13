@@ -6,7 +6,8 @@ import datetime
 from bson import ObjectId
 from pymongo import MongoClient
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../frontend')))
-from front import app, users_collection
+# from front import app, users_collection
+from AVA.app import app, users_collection
 
 #Test cases to check the save_history() and send_message() function is working or not. 
 

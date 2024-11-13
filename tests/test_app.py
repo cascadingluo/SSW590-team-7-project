@@ -4,8 +4,8 @@ import unittest
 from pymongo import MongoClient
 from werkzeug.security import generate_password_hash
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../frontend')))
-from front import app, users_collection
-
+# from front import app, users_collection
+from AVA.app import app, users_collection
 
 class FlaskTestCase(unittest.TestCase):
     

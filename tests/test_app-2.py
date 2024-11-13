@@ -4,7 +4,7 @@ from unittest.mock import MagicMock
 # Mock google.generativeai to prevent it from causing import issues
 sys.modules["google.generativeai"] = MagicMock()
 import pytest
-from app import app  # Import the Flask app instance from app.py
+from AVA.app import app  # Import the Flask app instance from app.py
 import json
 
 @pytest.fixture
