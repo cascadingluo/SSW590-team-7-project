@@ -6,7 +6,7 @@ the basic chatbot functions:
     - in the frontend file run: 
       ```bash
         pip install -r requirements.txt
-        python3 front.py
+        python3 app.py
       ```
     - in the backend file run: 
       ```bash
