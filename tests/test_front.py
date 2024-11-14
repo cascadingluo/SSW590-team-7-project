@@ -30,15 +30,16 @@ class FlaskTestCase(unittest.TestCase):
         existing_user = users_collection.find_one({"username": "testuser"})
         if existing_user:
             self.test_user = existing_user
+            self.test_user_id = str(self.test_user['_id'])
         else:
-        # Create a temporary test user in MongoDB
-            self.test_user = users_collection.insert_one({
+            result = users_collection.insert_one({
                 "username": "testuser",
                 "chat_history": []
             })
 
             # Stored ID of created user
-            self.test_user_id = str(self.test_user.inserted_id)
+            self.test_user_id = str(result.inserted_id)
+            
         print(f"Created test user with ID: {self.test_user_id}")
         
         #Simulating logged-in user
