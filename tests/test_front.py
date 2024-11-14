@@ -37,8 +37,8 @@ class FlaskTestCase(unittest.TestCase):
                 "chat_history": []
             })
 
-        # Stored ID of created user
-        self.test_user_id = str(self.test_user.inserted_id)
+            # Stored ID of created user
+            self.test_user_id = str(self.test_user.inserted_id)
         print(f"Created test user with ID: {self.test_user_id}")
         
         #Simulating logged-in user
