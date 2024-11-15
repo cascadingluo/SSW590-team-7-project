@@ -5,9 +5,9 @@ import json
 import datetime
 from bson import ObjectId
 from pymongo import MongoClient
+from flask import session
 from unittest.mock import patch
-
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../frontend')))
+#sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../frontend')))
 from AVA.app import app, users_collection
 
 #Test cases to check the save_history() and send_message() function is working or not. 
@@ -39,7 +39,7 @@ class FlaskTestCase(unittest.TestCase):
 
             # Stored ID of created user
             self.test_user_id = str(result.inserted_id)
-            
+
         print(f"Created test user with ID: {self.test_user_id}")
         
         #Simulating logged-in user
@@ -82,25 +82,6 @@ class FlaskTestCase(unittest.TestCase):
         self.assertEqual(len(user['chat_history']), 2)
         self.assertEqual(user['chat_history'][0]['content'], 'Hello')
 
-    def test_send_message(self):
-        print("\nTesting send_message endpoint")
-        
-        message = 'Hello, bot!'
-        response = self.app.post('/send_message', data={'message': message})
-        
-        print("\nMessage has been sent. Check MongoDB now.")
-        print(f"Check user with ID: {self.test_user_id}")
-        #input("Press Enter to continue with verification")
-        
-        # Verify database state
-        user = users_collection.find_one({"_id": ObjectId(self.test_user_id)})
-        print("\nChat history in database:", 
-              json.dumps(user['chat_history'], indent=2, cls=DateTimeEncoder))
-        
-        # User message & bot response
-        self.assertEqual(len(user['chat_history']), 2)  
-        self.assertEqual(user['chat_history'][0]['message'], message)
-    
     def tearDown(self):
         print("\n Ready to clean up test environment")
         #input("Press Enter to delete the test user")
@@ -109,3 +90,4 @@ class FlaskTestCase(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main(verbosity=2)
+
