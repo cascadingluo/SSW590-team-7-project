@@ -7,7 +7,6 @@ from bson import ObjectId
 from pymongo import MongoClient
 from flask import session
 from unittest.mock import patch
-#sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../frontend')))
 from AVA.app import app, users_collection
 
 #Test cases to check the save_history() and send_message() function is working or not. 
