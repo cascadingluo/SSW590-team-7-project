@@ -1,5 +1,7 @@
 The repository of team 8's project for CS555, this team includes, Luo Xu, Annanya Jain, Aya Salama, Spurthi Setty, Yanran Jia and Divya Prahlad from Stevens Institute of Technology.
 
+This goal of this project is to create an AI voice chatbot that the user can interact with to talk about mental health problems and surface level physical health problems.
+
 ***important! instructions to run:***
 the basic chatbot functions:
   - in the AVA file run: 
