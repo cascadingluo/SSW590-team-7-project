@@ -22,7 +22,7 @@ genai.configure(api_key=os.getenv("API_KEY"))
 
 users_collection = db.users 
 
-# model = genai.GenerativeModel(model_name="gemini-1.5-flash")
+#model = genai.GenerativeModel(model_name="gemini-1.5-flash")
 #model = genai.GenerativeModel(model_name="tunedModels/avamentalhealthft1-23b1qsi4o8g0")
 model = genai.GenerativeModel(model_name="tunedModels/mentalhealthchatbot-7mrtrsg0fib1")
 chat_object = model.start_chat()
@@ -96,12 +96,13 @@ def model_with_history():
         prompt_history += f"{role.capitalize()}: {content}\n"
 
     guidance_prompt = (
-        "This is the chat history of a user with A.V.A, a personal AI health assistant. "
-        "Please ask a relevant question that touches base on how they are feeling or any "
-        "specific condition they mentioned earlier. Be empathetic and encourage discussion."
+            "As A.V.A, a mental health assistant, review the chat history and craft a brief, empathetic response. "
+            "Ask a concise, caring follow-up question directly related to the user's previous messages. Use exactly 1-2 short sentences."
     )
+
     initial_prompt = f"{guidance_prompt}\n\n{prompt_history}Bot:"
     return initial_prompt
+   
 
 @app.route('/api/initChat', methods=['POST'])
 def init_chat():
@@ -128,8 +129,8 @@ def chat():
     prompt = f"""You are a compassionate and knowledgeable mental health assistant. Your role is to listen to the user’s emotional concerns and 
     provide supportive advice. Act as a friend or caretaker to the user. Use simple, everyday language to keep things easy to understand. Make 
     sure your tone is conversational, and avoid technical terms or complex phrases. At the end ask a specific follow-up question related to their 
-    health or well-being. Keep your questions friendly and focused on keeping the conversation going in a positive, engaging way. Provide the best 
-    course of action based on this input: {user_input} Respond in 3-4 sentences."""
+    health or well-being. Keep your question friendly and focused on keeping the conversation going in a positive, engaging way. Provide the best 
+    course of action based on this input: {user_input}. Use strictly just 1-2 short sentences [max 50 words]"""
 
     try:
         result = chat_object.send_message(prompt)
@@ -271,13 +272,11 @@ def save_to_chat_history(user_id, message):
 def generate_bot_response():
     user_input = request.json.get("input", "")
     
-    prompt = (
-        f"You are a compassionate and knowledgeable mental health assistant. Your role is to listen to the user’s emotional concerns and "
-        f"provide supportive advice. Act as a friend or caretaker to the user. Use simple, everyday language to keep things easy to understand. "
-        f"Make sure your tone is conversational, and avoid technical terms or complex phrases. At the end ask a specific follow-up question related "
-        f"to their health or well-being. Keep your questions friendly and focused on keeping the conversation going in a positive, engaging way. "
-        f"Provide the best course of action based on this input: {user_input} Respond in 3-4 sentences."
-    )
+    prompt = f"""You are a compassionate and knowledgeable mental health assistant. Your role is to listen to the user’s emotional concerns and 
+    provide supportive advice. Act as a friend or caretaker to the user. Use simple, everyday language to keep things easy to understand. Make 
+    sure your tone is conversational, and avoid technical terms or complex phrases. At the end ask a specific follow-up question related to their 
+    health or well-being. Keep your question friendly and focused on keeping the conversation going in a positive, engaging way. Provide the best 
+    course of action based on this input: {user_input}. Use strictly just 1-2 short sentences [max 50 words]"""
 
     try:
         result = chat_object.send_message(prompt)

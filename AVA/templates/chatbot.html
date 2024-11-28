@@ -105,6 +105,9 @@
       .then(response => response.json())
       .then(data => {
         addMessage(data.reply);
+        const utterance = new SpeechSynthesisUtterance(data.reply);
+        utterance.rate = speechRate;
+        window.speechSynthesis.speak(utterance);
       })
       .catch(error => console.error('Error initializing chat:', error));
     });
@@ -143,6 +146,7 @@
         document.querySelector('.chat-window').prepend(botMessage);
 
         const utterance = new SpeechSynthesisUtterance(data.reply);
+        utterance.rate = speechRate;
         window.speechSynthesis.speak(utterance);
 
         // Save the chat history
@@ -208,6 +212,7 @@
     const speedSlider = document.getElementById("speedSlider");
     const speedBar = document.getElementById("speedBar");
     const speedValue = document.getElementById("speedValue");
+    let speechRate = 0.7;
 
     speedSlider.addEventListener("input", function() {
       const speed = speedSlider.value;
