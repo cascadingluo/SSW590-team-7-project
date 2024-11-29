@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emotion Analysis</title>
+    <link rel="stylesheet" href="/static/A.V.A_styling.css">
+    <link rel="stylesheet" href="/static/emotions.css">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <div class="header-left">
+                <button class="header-btn">
+                    <img src="/static/ava_logo.png" alt="AVA logo" class="ava_logo">
+                </button>
+            </div>
+            <div class="header-center">
+                <h2>Emotion Analysis Dashboard</h2>
+            </div>
+            <div class="header-right">
+                <a class="header-btn" href="/chatbot">Back to Chat</a>
+                <a class="header-btn" href="/logout">Logout</a>
+            </div>
+        </header>
+
+        <main class="emotion-container">
+            <div id="dominant-emotion" class="emotion-box">
+                <h3>Dominant Emotion</h3>
+                <p id="dominant-emotion-text">Loading...</p>
+            </div>
+
+            <div class="emotion-chart" id="emotion-counts">
+            </div>
+
+            <div class="emotion-trends">
+                <h3>Emotion Trends (Last 20 Messages)</h3>
+                <div class="trends-scroll">
+                    <div id="emotion-trends-body">
+                        <div class="emotion-row-heading">
+                            <span>Emotion</span>
+                            <span>Confidence</span>
+                            <span>Timestamp</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            fetch('/emotion_analysis')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Not authorized');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    const dominantEmotionEl = document.getElementById('dominant-emotion-text');
+                    dominantEmotionEl.textContent = data.overall_dominant_emotion || 'No dominant emotion detected';
+
+                    const emotionCountsEl = document.getElementById('emotion-counts');
+                    Object.entries(data.emotion_counts).forEach(([emotion, count]) => {
+                        const emotionBox = document.createElement('div');
+                        emotionBox.className = 'emotion-box';
+                        emotionBox.innerHTML = `
+                            <h4>${emotion}</h4>
+                            <p>Count: ${count}</p>
+                        `;
+                        emotionCountsEl.appendChild(emotionBox);
+                    });
+
+                    const trendsBodyEl = document.getElementById('emotion-trends-body');
+                    data.emotion_trends.reverse().forEach(trend => {
+                        const row = document.createElement('div');
+                        row.className = 'emotion-row';
+                        row.innerHTML = `
+                            <div>${trend.emotion}</div>
+                            <div>${trend.confidence.toFixed(2)}</div>
+                            <div>${new Date(trend.timestamp).toLocaleString()}</div>
+                        `;
+                        trendsBodyEl.appendChild(row);
+                    });
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    if (error.message === 'Not authorized') {
+                        window.location.href = '/login';
+                    }
+                });
+        });
+    </script>
+</body>
+</html>

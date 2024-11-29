@@ -6,3 +6,7 @@ pytest-cov
 python-dotenv
 selenium
 google.generativeai
+tensorflow 
+keras
+keras-preprocessing
+numpy

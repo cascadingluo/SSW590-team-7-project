@@ -6,6 +6,7 @@
   <title>A.V.A Interface</title>
   <link rel="stylesheet" href="/static/A.V.A_styling.css"> <!-- Path to CSS -->
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="/static/emotion-analysis.js"></script>
   <style>
     /* Styling for the speed bar container */
     .speed-bar-container {
@@ -45,8 +46,8 @@
         <h2>Welcome to A.V.A, your personal AI health assistant...</h2>
       </div>
       <div class="header-right">
+        <a class="header-btn" href="/emotion_analysis_page">Emotion Analysis</a>
         <a class="header-btn" href="/reminders">reminders</a>
-        <button class="header-btn">settings</button>
         <a class="header-btn" href="/logout">logout</a>
       </div>
     </header>
@@ -212,7 +213,7 @@
     const speedSlider = document.getElementById("speedSlider");
     const speedBar = document.getElementById("speedBar");
     const speedValue = document.getElementById("speedValue");
-    let speechRate = 0.7;
+    let speechRate = 0.8;
 
     speedSlider.addEventListener("input", function() {
       const speed = speedSlider.value;

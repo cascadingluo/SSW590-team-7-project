@@ -1,0 +1,95 @@
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    background-color: #f0f0f0;
+}
+
+.container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 90%;
+    max-width: 1000px;
+    padding: 20px;
+    background-color: #f4f4f4;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.emotion-container {
+    width: 100%;
+    text-align: center;
+    padding: 20px;
+}
+
+.emotion-chart {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 20px;
+}
+
+.emotion-box {
+    background-color: #ffffff;
+    border-radius: 5px;
+    padding: 15px;
+    text-align: center;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.emotion-trends {
+    margin-top: 20px;
+    width: 100%;
+}
+
+#emotion-trends-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+#emotion-trends-table th, 
+#emotion-trends-table td {
+    padding: 8px 15px;
+    text-align: left;
+}
+
+#emotion-trends-body {
+    display: block;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.emotion-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    align-items: center;
+}
+
+.emotion-row div {
+    flex: 1;
+    padding: 0 10px;
+}
+
+.emotion-row-heading {
+    font-weight: bold;
+    margin-bottom: 15px;
+    display: flex;
+    justify-content: space-between;
+    text-align: center;
+}
+
+.emotion-row-heading span {
+    flex: 1;
+    padding: 0 20px;
+}
+
+@media (max-width: 600px) {
+    .container {
+        width: 100%;
+        padding: 10px;
+    }
+}
