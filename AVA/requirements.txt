@@ -10,3 +10,6 @@ tensorflow
 keras
 keras-preprocessing
 numpy
+sklearn
+nltk
+pandas
