@@ -7,9 +7,21 @@ import google.generativeai as genai
 from bson import ObjectId
 import random
 import os 
+from flask_socketio import SocketIO, emit
+from apscheduler.schedulers.background import BackgroundScheduler
+from apscheduler.triggers.date import DateTrigger
+
+
+app = Flask(__name__)
+
+socketio = SocketIO(app)
+dt = datetime.today()
+TODAY = dt.strftime('%A').lower()
+scheduler = BackgroundScheduler()
+scheduler.start()
+
 
 load_dotenv()
-app = Flask(__name__)
 app.secret_key = os.getenv("SECRET_KEY")
 
 # MongoDB Connection
@@ -193,6 +205,9 @@ def save_history():
         
         except ValueError as e:
             return jsonify({"error": str(e)}), 400
+        
+def send_reminder(reminder):
+    socketio.emit('reminder', reminder)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -205,6 +220,24 @@ def login():
         if user and check_password_hash(user["password"], password):
             session['user_id'] = str(user["_id"])
             flash("Login successful!")
+
+            reminders = user['reminders']
+            for reminder in reminders:
+                day = reminder['day'].lower()
+                if day == TODAY:
+                    now = datetime.now()
+                    time = reminder['time']
+                    reminder_datetime = datetime.combine(
+                        now.date(), 
+                        datetime.strptime(time, "%H:%M").time()
+                    )
+
+                    scheduler.add_job(
+                        send_reminder,
+                        trigger=DateTrigger(run_date=reminder_datetime),
+                        args=[reminder],
+                    )
+
             return redirect(url_for('chatbot'))
         else:
             flash("Invalid username or password")
@@ -238,6 +271,7 @@ def signup():
 @app.route('/logout')
 def logout():
     session.pop('user_id', None)
+    scheduler.remove_all_jobs()
     flash("Logged out successfully")
     return render_template('login.html')
 
@@ -268,6 +302,39 @@ def save_to_chat_history(user_id, message):
         {"_id": ObjectId(user_id)},
         {"$push": {"chat_history": {"message": message, "timestamp": timestamp}}}
     )
+
+@app.route('/save_reminder', methods=['POST'])
+def save_reminder():
+    user_id = session['user_id']
+    data = request.get_json() 
+    day = data['day'].lower()
+    time = data['time']
+
+    users_collection.update_one(
+        {"_id": ObjectId(user_id)},
+        {"$push": {
+            "reminders": {
+              "text": data['text'], 
+              "time": time,
+              "day": day, 
+              "frequency": data['frequency'], 
+            }}}
+    )
+    if day == TODAY:
+        now = datetime.now()
+        reminder_datetime = datetime.combine(
+            now.date(), 
+            datetime.strptime(time, "%H:%M").time()
+        )
+
+        scheduler.add_job(
+            send_reminder,
+            trigger=DateTrigger(run_date=reminder_datetime),
+            args=[data],
+        )
+
+    return jsonify({"reply": 'success'})
+
 
 def generate_bot_response():
     user_input = request.json.get("input", "")

@@ -6,6 +6,7 @@
   <title>A.V.A Interface</title>
   <link rel="stylesheet" href="/static/A.V.A_styling.css"> <!-- Path to CSS -->
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
   <style>
     /* Styling for the speed bar container */
     .speed-bar-container {
@@ -79,6 +80,8 @@
   </div>
 
   <script>
+    const socket = io();
+
     let isListening = false;
     const inputBox = document.querySelector('.input-box');
 
@@ -220,6 +223,10 @@
       speedBar.style.width = speed + "%";
     });
 
+    socket.on('reminder', function(reminder) {
+        showReminderNotification(reminder);
+    });
+
     // Function to show notification for reminders
     function showReminderNotification(reminder) {
         const notification = document.createElement("div");
@@ -236,7 +243,7 @@
     }
 
     // Example of scheduling the notification (you'd need to implement the scheduling logic)
-    setTimeout(() => showReminderNotification({ text: "Example Reminder", time: "7:00 PM" }), 5000); // Example notification in 5 seconds
+    // setTimeout(() => showReminderNotification({ text: "Example Reminder", time: "7:00 PM" }), 5000); // Example notification in 5 seconds
 
     // jQuery for sending message
     $(document).ready(function() {

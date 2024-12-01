@@ -11,14 +11,14 @@ document.addEventListener("DOMContentLoaded", () => {
         // Set the HTML content for the reminder
         reminderItem.innerHTML = `
             <div class="reminder-content">
-                <h3>Reminder: <input type="text" class="reminder-title" value="click on edit reminder to modify" disabled></h3>
+                <h3>Reminder: <input type="text" class="reminder-text" value="click on edit reminder to modify" disabled></h3>
                 <div>
                     <span class="reminder-label">Time:</span>
                     <input type="time" class="reminder-time" value="19:00" disabled>
                 </div>
                 <div>
-                    <span class="reminder-label">Date:</span>
-                    <select class="reminder-date" disabled>
+                    <span class="reminder-label">day:</span>
+                    <select class="reminder-day" disabled>
                         <option>Monday</option>
                         <option>Tuesday</option>
                         <option>Wednesday</option>
@@ -56,17 +56,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Function to toggle edit mode on a reminder item
     function toggleEditMode(reminderItem, isEditing) {
-        const title = reminderItem.querySelector(".reminder-title");
+        const text = reminderItem.querySelector(".reminder-text");
         const time = reminderItem.querySelector(".reminder-time");
-        const date = reminderItem.querySelector(".reminder-date");
+        const day = reminderItem.querySelector(".reminder-day");
         const frequency = reminderItem.querySelector(".reminder-frequency");
         const editBtn = reminderItem.querySelector(".edit-btn");
         const saveBtn = reminderItem.querySelector(".save-btn");
 
         // Toggle between edit and save mode
-        title.disabled = !isEditing;
+        text.disabled = !isEditing;
         time.disabled = !isEditing;
-        date.disabled = !isEditing;
+        day.disabled = !isEditing;
         frequency.disabled = !isEditing;
         editBtn.classList.toggle("hidden", isEditing);
         saveBtn.classList.toggle("hidden", !isEditing);
@@ -74,11 +74,25 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!isEditing) {
             // Save the edited values (optional: add more functionality here if needed)
             console.log("Saved Reminder:", {
-                title: title.value,
+                text: text.value,
                 time: time.value,
-                date: date.value,
+                day: day.value,
                 frequency: frequency.value
             });
+
+            $.ajax({
+                url: '/save_reminder', 
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({ 
+                    text: text.value,
+                    time: time.value, 
+                    day: day.value, 
+                    frequency: frequency.value 
+                })
+            });
+
+            
         }
     }
 
