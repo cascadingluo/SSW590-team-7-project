@@ -229,6 +229,10 @@
             <button onclick="this.parentNode.remove()">Done</button>
         `;
         document.querySelector('.chat-window').appendChild(notification);
+
+        const utterance = new SpeechSynthesisUtterance(reminder.text);
+        utterance.rate = speechRate;
+        window.speechSynthesis.speak(utterance);
     }
 
     // Example of scheduling the notification (you'd need to implement the scheduling logic)
