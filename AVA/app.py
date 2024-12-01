@@ -257,7 +257,7 @@ def signup():
             if password1 != password2:
                 flash("Passwords do not match")
                 return redirect(url_for('signup'))
-            new_user = {"username": username, "password": generate_password_hash(password1), "chat_history": []}
+            new_user = {"username": username, "password": generate_password_hash(password1), "chat_history": [], "reminders": []}
             users_collection.insert_one(new_user)
             session['user_id'] = str(new_user["_id"])
             return redirect(url_for('chatbot'))
