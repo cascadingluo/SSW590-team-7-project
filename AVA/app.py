@@ -221,22 +221,23 @@ def login():
             session['user_id'] = str(user["_id"])
             flash("Login successful!")
 
-            reminders = user['reminders']
-            for reminder in reminders:
-                day = reminder['day'].lower()
-                if day == TODAY:
-                    now = datetime.now()
-                    time = reminder['time']
-                    reminder_datetime = datetime.combine(
-                        now.date(), 
-                        datetime.strptime(time, "%H:%M").time()
-                    )
+            if user['reminders']:
+                reminders = user['reminders']
+                for reminder in reminders:
+                    day = reminder['day'].lower()
+                    if day == TODAY:
+                        now = datetime.now()
+                        time = reminder['time']
+                        reminder_datetime = datetime.combine(
+                            now.date(), 
+                            datetime.strptime(time, "%H:%M").time()
+                        )
 
-                    scheduler.add_job(
-                        send_reminder,
-                        trigger=DateTrigger(run_date=reminder_datetime),
-                        args=[reminder],
-                    )
+                        scheduler.add_job(
+                            send_reminder,
+                            trigger=DateTrigger(run_date=reminder_datetime),
+                            args=[reminder],
+                        )
 
             return redirect(url_for('chatbot'))
         else:
