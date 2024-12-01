@@ -57,7 +57,7 @@ def process_messages(messages):
         {
             'role': msg.get('role'),
             'content': msg.get('content'),
-            'timestamp': msg.get('timestamp') or datetime.datetime.now().isoformat()
+            'timestamp': msg.get('timestamp') or datetime.now().isoformat()
         }
         for msg in messages
     ]
@@ -157,12 +157,12 @@ def chat():
                             {
                                 'role': 'user',
                                 'content': user_input,
-                                'timestamp': datetime.datetime.utcnow()
+                                'timestamp': datetime.now()
                             },
                             {
                                 'role': 'bot',
                                 'content': bot_response,
-                                'timestamp': datetime.datetime.utcnow()
+                                'timestamp': datetime.now()
                             },
                         ],
                     }}
