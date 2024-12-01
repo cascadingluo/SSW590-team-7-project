@@ -1,3 +1,4 @@
+import time
 from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify
 from pymongo import MongoClient
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -20,6 +21,7 @@ TODAY = dt.strftime('%A').lower()
 scheduler = BackgroundScheduler()
 scheduler.start()
 
+from emotion_detector import EmotionDetector
 
 load_dotenv()
 app.secret_key = os.getenv("SECRET_KEY")
@@ -358,6 +360,58 @@ def generate_bot_response():
 @app.route('/speed_bar')
 def speed_bar():
     return render_template('speed_bar.html')
+
+@app.route('/emotion_analysis_page')
+def emotion_analysis_page():
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+    return render_template('emotion_analysis.html')
+
+@app.route('/emotion_analysis', methods=['GET'])
+def get_emotion_analysis():
+    if 'user_id' not in session:
+        return jsonify({"error": "User not logged in"}), 401
+    try:
+        emotion_detector = EmotionDetector()
+        user_id = get_user_id()
+        chat_history = get_chat_history()
+        emotion_analysis = {
+            'emotion_counts': {},
+            'emotion_trends': [],
+            'overall_dominant_emotion': None
+        }
+        user_messages = [
+            msg for msg in chat_history 
+            if msg['role'] == 'user'
+        ][-20:]   # Only analyzes the last 20 user messages
+        
+        for message in user_messages:
+            text = message.get('content', '')
+            if text:
+                try:
+                    emotion, confidence = emotion_detector.detect_emotion(text)
+                    emotion_analysis['emotion_counts'][emotion] = emotion_analysis['emotion_counts'].get(emotion, 0) + 1
+                    emotion_analysis['emotion_trends'].append({
+                        'emotion': emotion,
+                        'confidence': confidence,
+                        'timestamp': message.get('timestamp')
+                    })
+                except Exception as emotion_error:
+                    print(f"Error detecting emotion for message: {text}")
+                    print(f"Error details: {emotion_error}")
+        
+        # Determining the overall dominant emotion based on counts
+        if emotion_analysis['emotion_counts']:
+            emotion_analysis['overall_dominant_emotion'] = max(
+                emotion_analysis['emotion_counts'], 
+                key=emotion_analysis['emotion_counts'].get
+            )
+        
+        return jsonify(emotion_analysis)
+    
+    except Exception as e:
+        print(f"Emotion Analysis Error: {e}")
+        return jsonify({"error": "Error processing emotion analysis"}), 500
 
 if __name__ == '__main__':
     app.run(debug=True, port=3000)

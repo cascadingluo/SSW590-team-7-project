@@ -8,3 +8,10 @@ selenium
 google.generativeai
 flask_socketio
 APScheduler
+tensorflow 
+keras
+keras-preprocessing
+numpy
+sklearn
+nltk
+pandas
