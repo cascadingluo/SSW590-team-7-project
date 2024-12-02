@@ -111,6 +111,7 @@
         addMessage(data.reply);
         const utterance = new SpeechSynthesisUtterance(data.reply);
         utterance.rate = speechRate;
+        utterance.pitch = 1.2;
         window.speechSynthesis.speak(utterance);
       })
       .catch(error => console.error('Error initializing chat:', error));
@@ -151,6 +152,7 @@
 
         const utterance = new SpeechSynthesisUtterance(data.reply);
         utterance.rate = speechRate;
+        utterance.pitch = 1.2;
         window.speechSynthesis.speak(utterance);
 
         // Save the chat history
@@ -240,6 +242,7 @@
 
         const utterance = new SpeechSynthesisUtterance(reminder.text);
         utterance.rate = speechRate;
+        utterance.pitch = 1.2;
         window.speechSynthesis.speak(utterance);
     }
 
