@@ -3,7 +3,11 @@ FROM python:3.10.12-slim
 # Set the working directory in the container
 WORKDIR /app
 
-
+ENV TZ=America/New_York
+RUN apt-get update && apt-get install -y --no-install-recommends tzdata && \
+    ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
+    
 # Copy the requirements file and install dependencies
 COPY requirements.txt .
 RUN pip install --upgrade pip
