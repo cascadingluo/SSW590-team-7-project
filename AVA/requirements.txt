@@ -12,6 +12,6 @@ tensorflow
 keras
 keras-preprocessing
 numpy
-sklearn
+scikit-learn
 nltk
 pandas
