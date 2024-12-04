@@ -26,18 +26,3 @@ make sure you have the packages below when running:
 - go to your browser and navigate to localhost:3000 to see AVA in action!
 
 log/track:
-
-- Sprint 1:
-
-  - Created a basic interface using HTML and CSS, not yet integrated with the backend. ✅
-  - Developed a functional backend that supports both voice-to-text and text input. ✅
-  - Implemented a simple chat response system to showcase basic functionality within a minimal interface. ✅
-
-- Sprint 2:
-  - Intergrating the Backend and Frontend, shows the basic functionalities developed in sprint 1 with the actual front end. ✅
-  - Further development of the Backend with Voice output and better Voice Input Recognition, Fine-tuning the assistant and using the Q/A document for accurate responses. ✅
-  - See Jira for specific user stories. ✅
-- Sprint 3:
-  -
-- Sprint 4:
-  - starting in 4 weeks
