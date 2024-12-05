@@ -18,10 +18,12 @@ make sure you have the packages below when running:
 **_important! instructions to run with Docker:_**
 
 - after cloning repository, navigate to the AVA folder
+- open docker
 - run the following commands
-
-  - docker build -t ava:latest -f Dockerfile .
-  - docker run -d -p 3000:3000 ava:latest
+  ```bash
+    docker build -t ava:latest -f Dockerfile .
+    docker run -d -p 3000:3000 ava:latest
+  ```
 
 - go to your browser and navigate to localhost:3000 to see AVA in action!
 
