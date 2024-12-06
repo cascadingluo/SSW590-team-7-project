@@ -100,16 +100,19 @@ header {
 /* talk box */
 .sidebar {
     background-color: #98fb98;
-    display: flex;
     justify-content: center;
-    align-items: center;
     padding: 20%;
+    display: flex;
+    flex-flow: column;
+    flex-wrap: wrap;
+    align-items: center;
 }
 
-.talk-button {
+.talk-button, .speak-button {
     background-color: #8fbc8f;
     border: none;
     padding: 30%;
+    margin: 20px;
     border-radius: 10px;
     font-size: 18px;
     cursor: pointer;
