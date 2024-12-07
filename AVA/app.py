@@ -11,7 +11,9 @@ import os
 from flask_socketio import SocketIO, emit
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.date import DateTrigger
-from .emotion_detector import EmotionDetector
+import sys
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '.')))
+from emotion_detector import EmotionDetector
 
 app = Flask(__name__)
 
@@ -223,7 +225,7 @@ def login():
             session['user_id'] = str(user["_id"])
             flash("Login successful!")
 
-            if user['reminders']:
+            if user.get('reminders'):
                 reminders = user['reminders']
                 for reminder in reminders:
                     day = reminder['day'].lower()
