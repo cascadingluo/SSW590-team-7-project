@@ -11,7 +11,7 @@ import os
 from flask_socketio import SocketIO, emit
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.date import DateTrigger
-
+from .emotion_detector import EmotionDetector
 
 app = Flask(__name__)
 
@@ -21,7 +21,7 @@ TODAY = dt.strftime('%A').lower()
 scheduler = BackgroundScheduler()
 scheduler.start()
 
-from emotion_detector import EmotionDetector
+
 
 load_dotenv()
 app.secret_key = os.getenv("SECRET_KEY")
