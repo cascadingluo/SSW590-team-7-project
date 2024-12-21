@@ -27,4 +27,3 @@ make sure you have the packages below when running:
 
 - go to your browser and navigate to localhost:3000 to see AVA in action!
 
-log/track:
