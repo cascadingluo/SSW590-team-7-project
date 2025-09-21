@@ -1,4 +1,6 @@
-The repository of team 8's project for CS555, this team includes, Luo Xu, Annanya Jain, Aya Salama, Spurthi Setty, Yanran Jia and Divya Prahlad from Stevens Institute of Technology.
+The repository of team 7's project for SSW590, this team includes, Luo Xu, Annanya Jain, and Gavin Lam. 
+
+This repository is a modification and continuation of the project for CS555 created by Luo Xu, Annanya Jain, Aya Salama, Spurthi Setty, Yanran Jia and Divya Prahlad from Stevens Institute of Technology.
 
 This goal of this project is to create an AI voice chatbot that the user can interact with to talk about mental health problems and surface level physical health problems.
 
