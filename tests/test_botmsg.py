@@ -5,6 +5,8 @@ import os
 from dotenv import load_dotenv
 from bson import ObjectId
 from datetime import datetime, timezone
+from unittest.mock import patch, MagicMock
+
 
 # Testing send_message() function --> Creating tet case to test the bot response has been retrived or not when user sends message
 class TestChatBot(unittest.TestCase):
@@ -14,7 +16,11 @@ class TestChatBot(unittest.TestCase):
         self.client = app.test_client()
         self.test_user_id = str(ObjectId())
         
-    def test_chat_response(self):
+    @patch("AVA.app.chat_object.send_message")    
+    def test_chat_response(self, mock_send_message):
+
+        mock_send_message.return_value = MagicMock(text="Mocked bot reply")
+
         current_time = datetime.now(timezone.utc)
         test_input = {
             "input": "I am feeling sick?",
