@@ -1,7 +1,3 @@
-import numpy as np
-import tensorflow as tf
-from tensorflow.keras.preprocessing.sequence import pad_sequences
-import pickle
 import os
 
 
@@ -11,6 +7,10 @@ if os.environ.get("CI") == "true":
             return "neutral", 1.0
 
 else:
+    import tensorflow as tf
+    import numpy as np
+    import pickle
+    from tensorflow.keras.preprocessing.sequence import pad_sequences
     class EmotionDetector:
         def __init__(self):
         # I am loading my trained emotion detection model here
