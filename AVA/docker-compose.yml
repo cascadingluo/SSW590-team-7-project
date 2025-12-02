@@ -1,0 +1,75 @@
+version: "3.9"
+
+services:
+  app:
+    build: .
+    container_name: ava_app
+    ports:
+      - "3000:3000"
+    environment:
+      - FLASK_ENV=production
+    depends_on:
+      - mongo
+    networks:
+      - monitor-net
+
+  mongo:
+    image: mongo
+    container_name: mongo_db
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - monitor-net
+
+  prometheus:
+    image: prom/prometheus
+    container_name: prometheus
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - "9090:9090"
+    depends_on:
+      - app
+      - cadvisor
+      - node_exporter
+    networks:
+      - monitor-net
+
+  grafana:
+    image: grafana/grafana
+    container_name: grafana
+    ports:
+      - "3001:3000"
+    depends_on:
+      - prometheus
+    networks:
+      - monitor-net
+
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:latest
+    container_name: cadvisor
+    ports:
+      - "8080:8080"
+    privileged: true
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - /dev/disk:/dev/disk:ro
+    networks:
+      - monitor-net
+
+  node_exporter:
+    image: prom/node-exporter
+    container_name: node_exporter
+    ports:
+      - "9100:9100"
+    networks:
+      - monitor-net
+
+volumes:
+  mongo_data:
+
+networks:
+  monitor-net:

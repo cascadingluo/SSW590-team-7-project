@@ -4,7 +4,6 @@ from pymongo import MongoClient
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
 from dotenv import load_dotenv
-import google.generativeai as genai
 from bson import ObjectId
 import random
 import os 
@@ -13,9 +12,43 @@ from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.date import DateTrigger
 import sys
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '.')))
-from emotion_detector import EmotionDetector
+from prometheus_client import Counter, Histogram, generate_latest, CONTENT_TYPE_LATEST
+from flask import Response
+from prometheus_flask_exporter import PrometheusMetrics
 
 app = Flask(__name__)
+metrics = PrometheusMetrics(app)
+
+REQUEST_COUNT = Counter(
+    'ava_request_count',
+    'Total HTTP requests',
+    ['method', 'endpoint']
+)
+
+REQUEST_LATENCY = Histogram(
+    'ava_request_latency_seconds',
+    'Latency of HTTP requests in seconds',
+    ['endpoint']
+)
+
+REMINDER_SAVED = Counter(
+    'ava_reminder_saved_total',
+    'Total reminders saved'
+)
+
+from functools import wraps
+
+def track_metrics(endpoint_name):
+    def decorator(f):
+        @wraps(f)
+        def wrapper(*args, **kwargs):
+            start = time.time()
+            REQUEST_COUNT.labels(method=request.method, endpoint=endpoint_name).inc()
+            response = f(*args, **kwargs)
+            REQUEST_LATENCY.labels(endpoint=endpoint_name).observe(time.time() - start)
+            return response
+        return wrapper
+    return decorator
 
 socketio = SocketIO(app)
 dt = datetime.today()
@@ -32,16 +65,24 @@ app.secret_key = os.getenv("SECRET_KEY")
 client = MongoClient(os.getenv("MONGO_URI"))
 db = client.test 
 
-# Initialize Google Generative AI
-# Set the API key for google.generativeai
-genai.configure(api_key=os.getenv("API_KEY"))
+# # Initialize Google Generative AI
+# # Set the API key for google.generativeai
+# genai.configure(api_key=os.getenv("API_KEY"))
 
 users_collection = db.users 
 
-#model = genai.GenerativeModel(model_name="gemini-1.5-flash")
+# model = genai.GenerativeModel(model_name="gemini-1.5-flash")
 #model = genai.GenerativeModel(model_name="tunedModels/avamentalhealthft1-23b1qsi4o8g0")
-model = genai.GenerativeModel(model_name="tunedModels/mentalhealthchatbot-7mrtrsg0fib1")
-chat_object = model.start_chat()
+#model = genai.GenerativeModel(model_name="tunedModels/mentalhealthchatbot-7mrtrsg0fib1")
+
+from google import genai
+
+import os
+
+API_KEY = 'AIzaSyB76uW0XLIijk8ulil5MW358tbsM-VP6zU' # or hardcode temporarily
+
+client = genai.Client(api_key=API_KEY)
+chat_object = client.chats.create(model="gemini-2.5-flash")
 
 @app.route('/chatbot')
 def chatbot():
@@ -137,6 +178,7 @@ def init_chat():
         return jsonify({"error": "Error generating initial response"}), 500
 
 @app.route('/api/chat', methods=['POST'])
+@track_metrics("api_chat")
 def chat():
     data = request.json
     user_input = data.get('input')
@@ -309,6 +351,7 @@ def save_to_chat_history(user_id, message):
     )
 
 @app.route('/save_reminder', methods=['POST'])
+@track_metrics("save_reminder")
 def save_reminder():
     user_id = session['user_id']
     data = request.get_json() 
@@ -363,57 +406,62 @@ def generate_bot_response():
 def speed_bar():
     return render_template('speed_bar.html')
 
-@app.route('/emotion_analysis_page')
-def emotion_analysis_page():
-    if 'user_id' not in session:
-        return redirect(url_for('login'))
-    return render_template('emotion_analysis.html')
+# @app.route('/emotion_analysis_page')
+# def emotion_analysis_page():
+#     if 'user_id' not in session:
+#         return redirect(url_for('login'))
+#     return render_template('emotion_analysis.html')
 
-@app.route('/emotion_analysis', methods=['GET'])
-def get_emotion_analysis():
-    if 'user_id' not in session:
-        return jsonify({"error": "User not logged in"}), 401
-    try:
-        emotion_detector = EmotionDetector()
-        user_id = get_user_id()
-        chat_history = get_chat_history()
-        emotion_analysis = {
-            'emotion_counts': {},
-            'emotion_trends': [],
-            'overall_dominant_emotion': None
-        }
-        user_messages = [
-            msg for msg in chat_history 
-            if msg['role'] == 'user'
-        ][-20:]   # Only analyzes the last 20 user messages
+# @app.route('/emotion_analysis', methods=['GET'])
+# @track_metrics("emotion_analysis")
+# def get_emotion_analysis():
+#     if 'user_id' not in session:
+#         return jsonify({"error": "User not logged in"}), 401
+#     try:
+#         emotion_detector = EmotionDetector()
+#         user_id = get_user_id()
+#         chat_history = get_chat_history()
+#         emotion_analysis = {
+#             'emotion_counts': {},
+#             'emotion_trends': [],
+#             'overall_dominant_emotion': None
+#         }
+#         user_messages = [
+#             msg for msg in chat_history 
+#             if msg['role'] == 'user'
+#         ][-20:]   # Only analyzes the last 20 user messages
         
-        for message in user_messages:
-            text = message.get('content', '')
-            if text:
-                try:
-                    emotion, confidence = emotion_detector.detect_emotion(text)
-                    emotion_analysis['emotion_counts'][emotion] = emotion_analysis['emotion_counts'].get(emotion, 0) + 1
-                    emotion_analysis['emotion_trends'].append({
-                        'emotion': emotion,
-                        'confidence': confidence,
-                        'timestamp': message.get('timestamp')
-                    })
-                except Exception as emotion_error:
-                    print(f"Error detecting emotion for message: {text}")
-                    print(f"Error details: {emotion_error}")
+#         for message in user_messages:
+#             text = message.get('content', '')
+#             if text:
+#                 try:
+#                     emotion, confidence = emotion_detector.detect_emotion(text)
+#                     emotion_analysis['emotion_counts'][emotion] = emotion_analysis['emotion_counts'].get(emotion, 0) + 1
+#                     emotion_analysis['emotion_trends'].append({
+#                         'emotion': emotion,
+#                         'confidence': confidence,
+#                         'timestamp': message.get('timestamp')
+#                     })
+#                 except Exception as emotion_error:
+#                     print(f"Error detecting emotion for message: {text}")
+#                     print(f"Error details: {emotion_error}")
         
-        # Determining the overall dominant emotion based on counts
-        if emotion_analysis['emotion_counts']:
-            emotion_analysis['overall_dominant_emotion'] = max(
-                emotion_analysis['emotion_counts'], 
-                key=emotion_analysis['emotion_counts'].get
-            )
+#         # Determining the overall dominant emotion based on counts
+#         if emotion_analysis['emotion_counts']:
+#             emotion_analysis['overall_dominant_emotion'] = max(
+#                 emotion_analysis['emotion_counts'], 
+#                 key=emotion_analysis['emotion_counts'].get
+#             )
         
-        return jsonify(emotion_analysis)
+#         return jsonify(emotion_analysis)
     
-    except Exception as e:
-        print(f"Emotion Analysis Error: {e}")
-        return jsonify({"error": "Error processing emotion analysis"}), 500
+#     except Exception as e:
+#         print(f"Emotion Analysis Error: {e}")
+#         return jsonify({"error": "Error processing emotion analysis"}), 500
+
+@app.route("/metrics")
+def metrics():
+    return Response(generate_latest(), mimetype=CONTENT_TYPE_LATEST)
 
 if __name__ == '__main__':
     app.run(debug=True, port=3000)
