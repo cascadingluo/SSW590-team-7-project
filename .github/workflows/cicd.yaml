@@ -187,7 +187,8 @@ jobs:
       # --------------------------
       - name: Build Docker image
         run: |
-          docker build -t ava-app:${{ steps.ver.outputs.version }} .
+          docker build -t ava-app:${{ steps.ver.outputs.version }} ./AVA
+
 
       # --------------------------
       # Create ZIP Artifact
@@ -199,7 +200,7 @@ jobs:
         run: |
           mkdir artifact
           cp -r AVA artifact/
-          cp Dockerfile artifact/
+          cp AVA/Dockerfile artifact/
           zip -r ava-deployment-${{ steps.ver.outputs.version }}.zip artifact/
 
       # --------------------------
