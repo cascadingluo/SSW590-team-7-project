@@ -142,45 +142,71 @@ jobs:
         image: mongo:latest
         ports:
           - 27017:27017
+        options: >-
+          --health-cmd="mongosh --eval 'db.runCommand({ ping: 1 })'"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
 
     steps:
 
-    - name: Checkout code
-      uses: actions/checkout@v3
+      # --------------------------
+      # Checkout
+      # --------------------------
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-    - name: Set up Python 3.x
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.x'
+      # --------------------------
+      # Python
+      # --------------------------
+      - name: Set up Python 3.x
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
 
-    - name: Install dependencies
-      run: |
-        python3 -m pip install --upgrade pip
-        python3 -m pip install -r AVA/requirements.txt
+      - name: Install dependencies
+        run: |
+          python3 -m pip install --upgrade pip
+          python3 -m pip install -r AVA/requirements.txt
 
-    - name: Run unittest tests
-      run: |
-        python -m unittest discover tests
+      - name: Run unittest tests
+        run: |
+          python -m unittest discover tests
 
-    - name: Generate Version Number
-      id: ver
-      run: |
-        VERSION="1.0.${GITHUB_RUN_NUMBER}"
-        echo "version=$VERSION" >> $GITHUB_OUTPUT
+      # --------------------------
+      # Versioning
+      # --------------------------
+      - name: Generate Version Number
+        id: ver
+        run: |
+          VERSION="1.0.${GITHUB_RUN_NUMBER}"
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
 
-    - name: Build Docker image
-      run: |
-        docker build -t ava-app:${{ steps.ver.outputs.version }} .
+      # --------------------------
+      # Docker Build
+      # --------------------------
+      - name: Build Docker image
+        run: |
+          docker build -t ava-app:${{ steps.ver.outputs.version }} .
 
-    - name: Package deployable zip
-      run: |
-        mkdir artifact
-        cp -r AVA artifact/
-        cp Dockerfile artifact/
-        zip -r ava-deployment-${{ steps.ver.outputs.version }}.zip artifact/
+      # --------------------------
+      # Create ZIP Artifact
+      # --------------------------
+      - name: Install zip
+        run: sudo apt-get update && sudo apt-get install -y zip
 
-    - name: Upload build artifacts
-      uses: actions/upload-artifact@v3
-      with:
-        name: ava-build
-        path: ava-deployment-${{ steps.ver.outputs.version }}.zip
+      - name: Package deployable zip
+        run: |
+          mkdir artifact
+          cp -r AVA artifact/
+          cp Dockerfile artifact/
+          zip -r ava-deployment-${{ steps.ver.outputs.version }}.zip artifact/
+
+      # --------------------------
+      # Upload Artifact
+      # --------------------------
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ava-build
+          path: ava-deployment-${{ steps.ver.outputs.version }}.zip
