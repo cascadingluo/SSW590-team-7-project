@@ -78,10 +78,10 @@ users_collection = db.users
 from google import genai
 
 import os
-
-# API_KEY = 'AIzaSyBKjnqJkCeaRiulaO2rmlm62RIQ-6ofRnU'
-
-client = genai.Client(api_key=os.getenv("API_KEY"))
+API_KEY = os.getenv("API_KEY")
+client = None
+if API_KEY:
+    client = genai.Client(api_key=API_KEY)
 chat_object = client.chats.create(model="gemini-2.5-flash")
 
 @app.route('/chatbot')
