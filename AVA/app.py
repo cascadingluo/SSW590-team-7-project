@@ -79,9 +79,9 @@ from google import genai
 
 import os
 
-API_KEY = 'AIzaSyB76uW0XLIijk8ulil5MW358tbsM-VP6zU' # or hardcode temporarily
+# API_KEY = 'AIzaSyBKjnqJkCeaRiulaO2rmlm62RIQ-6ofRnU'
 
-client = genai.Client(api_key=API_KEY)
+client = genai.Client(api_key=os.getenv("API_KEY"))
 chat_object = client.chats.create(model="gemini-2.5-flash")
 
 @app.route('/chatbot')
@@ -176,6 +176,7 @@ def init_chat():
     except Exception as error:
         print("Error generating initial response:", error)
         return jsonify({"error": "Error generating initial response"}), 500
+
 
 @app.route('/api/chat', methods=['POST'])
 @track_metrics("api_chat")
