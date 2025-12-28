@@ -111,7 +111,10 @@ if users_collection is None:
     class DummyInsertResult:
         def __init__(self, inserted_id):
             self.inserted_id = inserted_id
-
+    
+    class DummyUpdateResult:
+        def __init__(self, matched_count):
+            self.matched_count = matched_count
     class DummyCollection:
         def __init__(self):
             self.storage = []
@@ -130,7 +133,8 @@ if users_collection is None:
         def update_one(self, query, update):
             doc = self.find_one(query)
             if not doc:
-                return None
+                return DummyUpdateResult(0)
+
             if "$push" in update:
                 for k, v in update["$push"].items():
                     doc.setdefault(k, [])
@@ -138,7 +142,8 @@ if users_collection is None:
                         doc[k].extend(v["$each"])
                     else:
                         doc[k].append(v)
-            return None
+
+            return DummyUpdateResult(1)
 
         def delete_one(self, query):
             self.storage = [
