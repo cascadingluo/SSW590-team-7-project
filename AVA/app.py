@@ -15,26 +15,41 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '.'))
 from prometheus_client import Counter, Histogram, generate_latest, CONTENT_TYPE_LATEST
 from flask import Response
 from prometheus_flask_exporter import PrometheusMetrics
+from prometheus_client import REGISTRY
 
 app = Flask(__name__)
 metrics = PrometheusMetrics(app)
 
-REQUEST_COUNT = Counter(
-    'ava_request_count',
-    'Total HTTP requests',
-    ['method', 'endpoint']
-)
+if 'ava_request_count' not in REGISTRY._names_to_collectors:
+    REQUEST_COUNT = Counter(
+        'ava_request_count',
+        'Total HTTP requests',
+        ['method', 'endpoint']
+    )
+else:
+    REQUEST_COUNT = REGISTRY._names_to_collectors['ava_request_count']
 
-REQUEST_LATENCY = Histogram(
-    'ava_request_latency_seconds',
-    'Latency of HTTP requests in seconds',
-    ['endpoint']
-)
 
-REMINDER_SAVED = Counter(
-    'ava_reminder_saved_total',
-    'Total reminders saved'
-)
+if 'ava_request_latency_seconds' not in REGISTRY._names_to_collectors:
+    REQUEST_LATENCY = Histogram(
+        'ava_request_latency_seconds',
+        'Latency of HTTP requests in seconds',
+        ['endpoint']
+    )
+        
+else:
+    REQUEST_LATENCY = REGISTRY._names_to_collectors['ava_request_latency_seconds']
+
+if 'ava_reminder_saved_total' not in REGISTRY._names_to_collectors:
+    REMINDER_SAVED = Counter(
+        'ava_reminder_saved_total',
+        'Total reminders saved'
+    )
+        
+else:
+    REMINDER_SAVED = REGISTRY._names_to_collectors['ava_reminder_saved_total']
+
+
 
 from functools import wraps
 
@@ -59,17 +74,50 @@ scheduler.start()
 
 
 load_dotenv()
-app.secret_key = os.getenv("SECRET_KEY")
+from google import genai
 
-# MongoDB Connection
-client = MongoClient(os.getenv("MONGO_URI"))
-db = client.test 
+GENAI_CLIENT = None
+
+def get_genai_client():
+    global GENAI_CLIENT
+    if GENAI_CLIENT is None:
+        api_key = os.getenv("API_KEY")
+        if not api_key:
+            return None
+        GENAI_CLIENT = genai.Client(api_key=api_key)
+    return GENAI_CLIENT
+
+app.secret_key = os.getenv("SECRET_KEY", "test-secret-key")
+
+# # MongoDB Connection
+# client = MongoClient(os.getenv("MONGO_URI"))
+# db = client.test 
+# users_collection = db.users 
+
+MONGO_URI = os.getenv("MONGO_URI")
+
+if MONGO_URI:
+    client = MongoClient(MONGO_URI)
+    db = client["test"]
+    users_collection = db["users"]
+else:
+    client = None
+    db = None
+    users_collection = None
+
+if users_collection is None:
+    class DummyCollection:
+        def find_one(self, *args, **kwargs): return None
+        def update_one(self, *args, **kwargs): return None
+        def insert_one(self, *args, **kwargs): return None
+
+    users_collection = DummyCollection()
 
 # # Initialize Google Generative AI
 # # Set the API key for google.generativeai
 # genai.configure(api_key=os.getenv("API_KEY"))
 
-users_collection = db.users 
+
 
 # model = genai.GenerativeModel(model_name="gemini-1.5-flash")
 #model = genai.GenerativeModel(model_name="tunedModels/avamentalhealthft1-23b1qsi4o8g0")
@@ -78,11 +126,12 @@ users_collection = db.users
 from google import genai
 
 import os
-API_KEY = os.getenv("API_KEY")
-client = None
-if API_KEY:
-    client = genai.Client(api_key=API_KEY)
-chat_object = client.chats.create(model="gemini-2.5-flash")
+
+def get_chat_object():
+    client = get_genai_client()
+    if client is None:
+        return None
+    return client.chats.create(model="gemini-2.5-flash")
 
 @app.route('/chatbot')
 def chatbot():
@@ -169,7 +218,12 @@ def init_chat():
         if not chat_history:
             bot_response = prompt.replace("Bot: ", "")
         else:
-            result = chat_object.send_message(prompt)
+            chat = get_chat_object()
+            if chat is None:
+                return jsonify({"error": "AI service not configured"}), 503
+
+            result = chat.send_message(prompt)
+
             follow_up_question = " Would you like to continue talking about this, or is there something new you'd like to discuss today?"
             bot_response = result.text + follow_up_question
         return jsonify({"reply": bot_response})
@@ -192,7 +246,12 @@ def chat():
     course of action based on this input: {user_input}. Use strictly just 1-2 short sentences [max 50 words]"""
 
     try:
-        result = chat_object.send_message(prompt)
+        chat = get_chat_object()
+        if chat is None:
+            return jsonify({"error": "AI service not configured"}), 503
+
+        result = chat.send_message(prompt)
+
         bot_response = result.text
 
         if user_id:
@@ -395,7 +454,12 @@ def generate_bot_response():
     course of action based on this input: {user_input}. Use strictly just 1-2 short sentences [max 50 words]"""
 
     try:
-        result = chat_object.send_message(prompt)
+        chat = get_chat_object()
+        if chat is None:
+            return jsonify({"error": "AI service not configured"}), 503
+
+        result = chat.send_message(prompt)
+
         print(result.text) 
         bot_response = result.text
         return jsonify({"reply": bot_response})
@@ -465,4 +529,4 @@ def metrics():
     return Response(generate_latest(), mimetype=CONTENT_TYPE_LATEST)
 
 if __name__ == '__main__':
-    app.run(debug=True, port=3000)
+    app.run(debug=True, port=3000, use_reloader=False)
