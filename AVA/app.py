@@ -16,6 +16,7 @@ from prometheus_client import Counter, Histogram, generate_latest, CONTENT_TYPE_
 from flask import Response
 from prometheus_flask_exporter import PrometheusMetrics
 from prometheus_client import REGISTRY
+from bson import ObjectId
 
 app = Flask(__name__)
 metrics = PrometheusMetrics(app)
@@ -106,10 +107,45 @@ else:
     users_collection = None
 
 if users_collection is None:
+
+    class DummyInsertResult:
+        def __init__(self, inserted_id):
+            self.inserted_id = inserted_id
+
     class DummyCollection:
-        def find_one(self, *args, **kwargs): return None
-        def update_one(self, *args, **kwargs): return None
-        def insert_one(self, *args, **kwargs): return None
+        def __init__(self):
+            self.storage = []
+
+        def find_one(self, query):
+            for doc in self.storage:
+                if all(doc.get(k) == v for k, v in query.items()):
+                    return doc
+            return None
+
+        def insert_one(self, doc):
+            doc["_id"] = ObjectId()
+            self.storage.append(doc)
+            return DummyInsertResult(doc["_id"])
+
+        def update_one(self, query, update):
+            doc = self.find_one(query)
+            if not doc:
+                return None
+            if "$push" in update:
+                for k, v in update["$push"].items():
+                    doc.setdefault(k, [])
+                    if isinstance(v, dict) and "$each" in v:
+                        doc[k].extend(v["$each"])
+                    else:
+                        doc[k].append(v)
+            return None
+
+        def delete_one(self, query):
+            self.storage = [
+                doc for doc in self.storage
+                if not all(doc.get(k) == v for k, v in query.items())
+            ]
+            return None
 
     users_collection = DummyCollection()
 
